@@ -7,10 +7,11 @@ done
 echo "Microphone is available"
 
 echo "Activate Python virtual environment..."
-source /home/fably/.venv/bin/activate
+cd /home/pwillart
+source .venv/bin/activate
 
 echo "Run Fably continously..."
-cd /home/fably/fably
+cd fably
 
 # Run Fably in a constant loop (using the default APIs)
 fably --loop
