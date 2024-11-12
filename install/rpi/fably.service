@@ -5,7 +5,7 @@ Wants=seeed-voicecard.service
 
 [Service]
 Type=simple
-ExecStart=/home/fably/fably/startup/start_fably.sh
+ExecStart=/home/pwillart/fably/startup/start_fably.sh
 Restart=on-abort
 
 [Install]
