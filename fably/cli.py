@@ -21,6 +21,7 @@ OPENAI_URL = "https://api.openai.com/v1"
 OLLAMA_URL = "http://127.0.0.1:11434/v1"
 
 PROMPT_FILE = "./prompt.txt"
+PROMPT_FILE_ES = "./prompt_es.txt"
 QUERIES_PATH = "./queries"
 STORIES_PATH = "./stories"
 MODELS_PATH = "./models"
@@ -39,13 +40,15 @@ TTS_MODEL = "tts-1"
 TTS_VOICE = "nova"
 TTS_FORMAT = "mp3"
 LANGUAGE = "en"
-BUTTON_GPIO_PIN = 17
+BUTTON_GPIO_PIN = 17  # pin 11
+BUTTON_2_GPIO_PIN = 24  # pin 18
 HOLD_TIME = 3
 SOUND_DRIVER = "alsa"
 QUERY_GUARD = "tell me a story"
+QUERY_GUARD_ES = "cuéntame un cuénto"
 
 # STARTING_COLORS = [0xff0000, 0x00ff00, 0x0000ff]
-STARTING_COLORS = [0xFF0000, 0xFF0000, 0xFF0000]
+STARTING_COLORS = [0xFF0000, 0xFF0000, 0xFF0000]  # length determines the number of LEDS
 
 # Load environment variables from .env file, if available
 load_dotenv()
@@ -171,6 +174,12 @@ load_dotenv()
     help=f"The GPIO pin to use for the button. Defaults to {BUTTON_GPIO_PIN}.",
 )
 @click.option(
+    "--button-2-gpio-pin",
+    type=int,
+    default=BUTTON_2_GPIO_PIN,
+    help=f"The GPIO pin to use for the second button. Defaults to {BUTTON_2_GPIO_PIN}.",
+)
+@click.option(
     "--hold-time",
     type=float,
     default=HOLD_TIME,
@@ -182,6 +191,7 @@ def cli(
     ctx,
     query,
     prompt_file,
+    prompt_file_es,
     sample_rate,
     queries_path,
     stories_path,
@@ -199,11 +209,13 @@ def cli(
     tts_format,
     language,
     query_guard,
+    query_guard_es,
     debug,
     ignore_cache,
     sound_driver,
     trim_first_frame,
     button_gpio_pin,
+    button_2_gpio_pin,
     hold_time,
     loop,
 ):
@@ -226,15 +238,18 @@ def cli(
     ctx.tts_format = tts_format
     ctx.language = language
     ctx.query_guard = query_guard
+    ctx.query_guard_es = query_guard_es
     ctx.ignore_cache = ignore_cache
     ctx.debug = debug
     ctx.loop = loop
     ctx.sound_driver = sound_driver
     ctx.trim_first_frame = trim_first_frame
     ctx.button_gpio_pin = button_gpio_pin
+    ctx.button_2_gpio_pin = button_2_gpio_pin
     ctx.hold_time = hold_time
 
     ctx.prompt_file = utils.resolve(prompt_file)
+    ctx.prompt_file_es = utils.resolve(prompt_file_es)
     ctx.queries_path = utils.resolve(queries_path)
     ctx.stories_path = utils.resolve(stories_path)
     ctx.models_path = utils.resolve(models_path)

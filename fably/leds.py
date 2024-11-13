@@ -24,7 +24,7 @@ class LEDs:
 
     def _run(self):
         # If we can't load the library, we can't do anything.
-        # We shoudl not be getting here but just in case.
+        # We should not be getting here but just in case.
         if not apa102:
             return
 
