@@ -62,6 +62,11 @@ load_dotenv()
     help=f'The file to use as the prompt when generating stories. Defaults to "{PROMPT_FILE}".',
 )
 @click.option(
+    "--prompt-file-es",
+    default=PROMPT_FILE_ES,
+    help=f'The file to use as the prompt when generating Spanish stories. Defaults to "{PROMPT_FILE_ES}".',
+)
+@click.option(
     "--sample-rate",
     default=SAMPLE_RATE,
     help=f"The sample rate to use when generating stories. Defaults to {SAMPLE_RATE}.",
@@ -147,6 +152,11 @@ load_dotenv()
     "--query-guard",
     default=QUERY_GUARD,
     help=f'The text each query has to start with. Defaults to "{QUERY_GUARD}".',
+)
+@click.option(
+    "--query-guard",
+    default=QUERY_GUARD_ES,
+    help=f'The text each query has to start with. Defaults to "{QUERY_GUARD_ES}".',
 )
 @click.option("--debug", is_flag=True, default=False, help="Enables debug logging.")
 @click.option(
