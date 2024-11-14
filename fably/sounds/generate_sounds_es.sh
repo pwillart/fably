@@ -1,6 +1,6 @@
 #!/bin/bash
 export LANG=en_US.UTF-8
-export OPENAI_API_KEY=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
+export OPENAI_API_KEY=
 
 curl https://api.openai.com/v1/audio/speech \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
