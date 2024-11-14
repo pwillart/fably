@@ -174,7 +174,7 @@ async def writer(ctx, story_queue, query=None):
 async def reader(ctx, story_queue, reading_queue):
     """
     Processes the queue of paragraphs and sends them off to be read
-    and synthezized into audio files to be read by the speaker.
+    and synthesized into audio files to be read by the speaker.
     """
     while ctx.talking:
         item = await story_queue.get()
@@ -257,16 +257,16 @@ def main(ctx, query=None):
 
     if ctx.loop and Button:
         ctx.leds.start()
-        utils.play_sound("startup", audio_driver=ctx.sound_driver)
+        utils.play_sound("startup", audio_driver=ctx.sound_driver, language=ctx.language)
 
         # Let's introduce ourselves
-        utils.play_sound("hi", audio_driver=ctx.sound_driver)
+        utils.play_sound("hi", audio_driver=ctx.sound_driver, language=ctx.language)
 
-        def pressed(ctx):
+        def button_pressed(ctx):
             ctx.press_time = time.time()
             logging.debug("Button pressed")
 
-        def released(ctx):
+        def button_released(ctx):
             release_time = time.time()
             pressed_for = release_time - ctx.press_time
             logging.debug("Button released after %f seconds", pressed_for)
@@ -277,21 +277,45 @@ def main(ctx, query=None):
                     tell_story(ctx, terminate=False)
                     logging.debug("Forked the storytelling thread")
                 else:
-                    logging.debug(
-                        "This is a short press, but we are already telling a story."
-                    )
+                    logging.debug("This is a short press, but we are already telling a story.")
 
-        def held(ctx):
-            logging.info("This is a hold press. Shutting down.")
-            ctx.running = False
+        def button_held(ctx):
+            pass  # for now never shut down
+            # logging.info("This is a hold press. Shutting down.")
+            # ctx.running = False
 
         ctx.button = Button(pin=ctx.button_gpio_pin, hold_time=ctx.hold_time)
-        ctx.button.when_pressed = lambda: pressed(ctx)
-        ctx.button.when_released = lambda: released(ctx)
-        ctx.button.when_held = lambda: held(ctx)
+        ctx.button.when_pressed = lambda: button_pressed(ctx)
+        ctx.button.when_released = lambda: button_released(ctx)
+        ctx.button.when_held = lambda: button_held(ctx)
+
+        def button_2_pressed(ctx):
+            ctx.press_time = time.time()
+            logging.debug("Button 2 pressed")
+
+        def button_2_released(ctx):
+            release_time = time.time()
+            pressed_for = release_time - ctx.press_time
+            logging.debug("Button 2 released after %f seconds", pressed_for)
+
+            if pressed_for < ctx.button.hold_time:
+                if not ctx.talking:
+                    logging.info("This is a short press. Changing language...")
+                else:
+                    logging.debug("This is a short press. Stopping current story...")
+
+        def button_2_held(ctx):
+            pass  # for now never shut down
+            # logging.info("This is a hold press. Shutting down.")
+            # ctx.running = False
+
+        ctx.button_2 = Button(pin=ctx.button_2_gpio_pin, hold_time=ctx.hold_time)
+        ctx.button_2.when_pressed = lambda: button_2_pressed(ctx)
+        ctx.button_2.when_released = lambda: button_2_released(ctx)
+        ctx.button_2.when_held = lambda: button_2_held(ctx)
 
         # Give instruction for loop mode
-        utils.play_sound("instructions", audio_driver=ctx.sound_driver)
+        utils.play_sound("instructions", audio_driver=ctx.sound_driver, language=ctx.language)
 
         # Stop the LEDs once we're ready.
         ctx.leds.stop()
@@ -304,6 +328,6 @@ def main(ctx, query=None):
     while ctx.running:
         time.sleep(1.0)
 
-    utils.play_sound("bye", audio_driver=ctx.sound_driver)
+    utils.play_sound("bye", audio_driver=ctx.sound_driver, language=ctx.language)
 
     logging.debug("Shutting down... bye!")

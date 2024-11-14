@@ -130,13 +130,16 @@ def write_audio_data_to_file(audio_data, audio_file, sample_rate):
     sf.write(audio_file, audio_data, sample_rate)
 
 
-def play_sound(sound, audio_driver="alsa"):
+def play_sound(sound, audio_driver="alsa", language="en"):
     """
     Return the path of the sound file with the given name.
     """
-    sound_file = Path(__file__).resolve().parent / SOUNDS_PATH / f"{sound}.wav"
+    if language == "en":
+        sound_file = Path(__file__).resolve().parent / SOUNDS_PATH / f"{sound}.wav"
+    else:
+        sound_file = Path(__file__).resolve().parent / SOUNDS_PATH / f"{sound}_{language}.wav"
     if not sound_file.exists():
-        raise ValueError(f"Sound {sound} not found in path {sound_file}.")
+        raise ValueError(f"Sound {sound} ({language}) not found in path {sound_file}.")
     play_audio_file(sound_file, audio_driver)
 
 
