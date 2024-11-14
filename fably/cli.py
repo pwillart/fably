@@ -154,7 +154,7 @@ load_dotenv()
     help=f'The text each query has to start with. Defaults to "{QUERY_GUARD}".',
 )
 @click.option(
-    "--query-guard",
+    "--query-guard-es",
     default=QUERY_GUARD_ES,
     help=f'The text each query has to start with. Defaults to "{QUERY_GUARD_ES}".',
 )
