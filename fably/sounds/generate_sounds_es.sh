@@ -1,5 +1,6 @@
 #!/bin/bash
 export LANG=en_US.UTF-8
+# Add open ai api key here
 
 curl https://api.openai.com/v1/audio/speech \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
