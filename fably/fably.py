@@ -302,7 +302,8 @@ def main(ctx, query=None):
             if pressed_for < ctx.button.hold_time:
                 if not ctx.talking:
                     logging.info("This is a short press. Changing language...")
-                    logging.debug("New language is %s", ctx.language)
+                    ctx.language = 'es' if ctx.language == 'en' else 'en'
+                    logging.info("New language is %s", ctx.language)
                 else:
                     logging.debug("This is a short press. Stopping current story...")
 
