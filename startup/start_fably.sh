@@ -7,10 +7,12 @@ done
 echo "Microphone is available"
 
 echo "Activate Python virtual environment..."
+# shellcheck disable=SC2164
 cd /home/pwillart
 source .venv/bin/activate
 
 echo "Run Fably continously..."
+# shellcheck disable=SC2164
 cd fably
 
 # Run Fably in a constant loop (using the default APIs)

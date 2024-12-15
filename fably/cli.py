@@ -45,7 +45,7 @@ BUTTON_2_GPIO_PIN = 24  # pin 18
 HOLD_TIME = 3
 SOUND_DRIVER = "alsa"
 QUERY_GUARD = "tell me a story"
-QUERY_GUARD_ES = "cuéntame un cuénto"
+QUERY_GUARD_ES = "dime un cuénto"
 
 # STARTING_COLORS = [0xff0000, 0x00ff00, 0x0000ff]
 STARTING_COLORS = [0xFF0000, 0xFF0000, 0xFF0000]  # length determines the number of LEDS
