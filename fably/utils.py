@@ -262,6 +262,7 @@ def transcribe(
     """
     Transcribes the given audio data using the OpenAI API.
     """
+    logging.info('transcribing audio from %s in language %s', audio_data, language)
 
     file_name = time.strftime("%d_%m_%Y-%H_%M_%S") + ".wav"
 
