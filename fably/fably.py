@@ -84,6 +84,9 @@ async def writer(ctx, story_queue, query=None):
     processes the returned content as a stream, chunks it into paragraphs and appends them
     to the queue for downstream processing.
     """
+
+    qg = ctx.query_guard_es if ctx.language == 'es' else ctx.query_guard
+
     if query:
         query_local = "n/a"
         voice_query_file = None
@@ -106,7 +109,7 @@ async def writer(ctx, story_queue, query=None):
     if not query.lower().startswith(ctx.query_guard):
         logging.warning(
             "Sorry, I can only run queries that start with '%s' and '%s' does not",
-            ctx.query_guard,
+            qg,
             query,
         )
         utils.play_sound("sorry", audio_driver=ctx.sound_driver, language=ctx.language)

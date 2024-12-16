@@ -285,5 +285,5 @@ def transcribe(
             model=stt_model, language=language, file=query
         )
 
-    logging.info('Transcribed test is: %s', response.text)
+    logging.info('Transcribed text is: %s', response.text)
     return response.text, audio_file
