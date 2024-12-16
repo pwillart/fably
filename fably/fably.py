@@ -106,7 +106,8 @@ async def writer(ctx, story_queue, query=None):
         )
         logging.info("Voice query: %s [%s]", query, query_local)
 
-    if not query.lower().startswith(ctx.query_guard):
+    # if not query.lower().startswith(ctx.query_guard):
+    if query.lower().find(ctx.query_guard) == -1:
         logging.warning(
             "Sorry, I can only run queries that start with '%s' and '%s' does not",
             qg,
@@ -307,6 +308,7 @@ def main(ctx, query=None):
                     logging.info("This is a short press. Changing language...")
                     ctx.language = 'es' if ctx.language == 'en' else 'en'
                     logging.info("New language is %s", ctx.language)
+                    utils.play_sound("hi", audio_driver=ctx.sound_driver, language=ctx.language)
                 else:
                     logging.debug("This is a short press. Stopping current story...")
 
