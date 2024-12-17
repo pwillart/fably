@@ -308,7 +308,7 @@ def main(ctx, query=None):
                     logging.info("This is a short press. Changing language...")
                     ctx.language = 'es' if ctx.language == 'en' else 'en'
                     logging.info("New language is %s", ctx.language)
-                    utils.play_sound("hi", audio_driver=ctx.sound_driver, language=ctx.language)
+                    utils.play_sound("instructions", audio_driver=ctx.sound_driver, language=ctx.language)
                 else:
                     logging.debug("This is a short press. Stopping current story...")
 
