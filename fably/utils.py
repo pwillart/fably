@@ -264,6 +264,8 @@ def transcribe(
     """
 
     file_name = time.strftime("%d_%m_%Y-%H_%M_%S") + ".wav"
+    logging.info('transcribing audio in language %s to %s', language, file_name)
+
 
     if not audio_path:
         audio_file = Path(file_name)
@@ -273,13 +275,15 @@ def transcribe(
             audio_file = audio_path / file_name
         else:
             audio_file = audio_path
+    logging.info("Recorded audio file: %s", audio_file)
     write_audio_data_to_file(audio_data, audio_file, sample_rate)
 
-    logging.debug("Sending voice query for transcription...")
+    logging.info("Sending voice query for transcription...")
 
     with open(audio_file, "rb") as query:
         response = stt_client.audio.transcriptions.create(
             model=stt_model, language=language, file=query
         )
 
+    logging.info('Transcribed text is: %s', response.text)
     return response.text, audio_file

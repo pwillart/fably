@@ -44,8 +44,12 @@ BUTTON_GPIO_PIN = 17  # pin 11
 BUTTON_2_GPIO_PIN = 24  # pin 18
 HOLD_TIME = 3
 SOUND_DRIVER = "alsa"
-QUERY_GUARD = "tell me a story"
-QUERY_GUARD_ES = "cuéntame un cuénto"
+# Full query guards
+# QUERY_GUARD = "tell me a story"
+# QUERY_GUARD_ES = "dime un cuento"
+# Query guard word. Basically the idea is that it will accept the query as long as there is the query word in it.
+QUERY_GUARD = "story"
+QUERY_GUARD_ES = "cuento"
 
 # STARTING_COLORS = [0xff0000, 0x00ff00, 0x0000ff]
 STARTING_COLORS = [0xFF0000, 0xFF0000, 0xFF0000]  # length determines the number of LEDS

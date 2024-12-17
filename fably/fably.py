@@ -84,11 +84,14 @@ async def writer(ctx, story_queue, query=None):
     processes the returned content as a stream, chunks it into paragraphs and appends them
     to the queue for downstream processing.
     """
+
+    query_guard = ctx.query_guard_es if ctx.language == 'es' else ctx.query_guard
+
     if query:
         query_local = "n/a"
         voice_query_file = None
     else:
-        utils.play_sound("what_story", audio_driver=ctx.sound_driver)
+        utils.play_sound("what_story", audio_driver=ctx.sound_driver, language=ctx.language)
 
         voice_query, query_sample_rate, query_local = utils.record_until_silence(
             ctx.recognizer, ctx.trim_first_frame
@@ -103,13 +106,14 @@ async def writer(ctx, story_queue, query=None):
         )
         logging.info("Voice query: %s [%s]", query, query_local)
 
-    if not query.lower().startswith(ctx.query_guard):
+    # if not query.lower().startswith(ctx.query_guard):
+    if query.lower().find(query_guard) == -1:
         logging.warning(
             "Sorry, I can only run queries that start with '%s' and '%s' does not",
-            ctx.query_guard,
+            query_guard,
             query,
         )
-        utils.play_sound("sorry", audio_driver=ctx.sound_driver)
+        utils.play_sound("sorry", audio_driver=ctx.sound_driver, language=ctx.language)
         await story_queue.put(None)  # Indicates that we're done
         return
 
@@ -202,6 +206,7 @@ async def speaker(ctx, reading_queue):
                 break
 
             def speak():
+                # ctx.leds.twinkle()
                 ctx.leds.stop()
                 utils.play_audio_file(audio_file, ctx.sound_driver)
 
@@ -301,6 +306,9 @@ def main(ctx, query=None):
             if pressed_for < ctx.button.hold_time:
                 if not ctx.talking:
                     logging.info("This is a short press. Changing language...")
+                    ctx.language = 'es' if ctx.language == 'en' else 'en'
+                    logging.info("New language is %s", ctx.language)
+                    utils.play_sound("instructions", audio_driver=ctx.sound_driver, language=ctx.language)
                 else:
                     logging.debug("This is a short press. Stopping current story...")
 
