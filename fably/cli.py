@@ -51,9 +51,6 @@ SOUND_DRIVER = "alsa"
 QUERY_GUARD = "story"
 QUERY_GUARD_ES = "cuento"
 
-# STARTING_COLORS = [0xff0000, 0x00ff00, 0x0000ff]
-STARTING_COLORS = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF]  # length determines the number of LEDS
-
 # Load environment variables from .env file, if available
 load_dotenv()
 

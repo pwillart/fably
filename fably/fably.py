@@ -104,6 +104,7 @@ async def writer(ctx, story_queue, query=None):
             query_sample_rate,
             ctx.queries_path,
         )
+        ctx.leds.spin()
         logging.info("Voice query: %s [%s]", query, query_local)
 
     # if not query.lower().startswith(ctx.query_guard):
@@ -218,7 +219,7 @@ async def run_story_loop(ctx, query=None, terminate=False):
     The main loop for running the story.
     """
     ctx.talking = True
-    ctx.leds.start()
+    ctx.leds.start("rotate")
 
     story_queue = asyncio.Queue()
     reading_queue = asyncio.Queue()
@@ -242,6 +243,7 @@ def tell_story(ctx, query=None, terminate=False):
     """
 
     def tell_story_wrapper():
+        ctx.leds.start("twinkle")
         asyncio.run(run_story_loop(ctx, query, terminate))
 
     threading.Thread(target=tell_story_wrapper).start()
@@ -261,7 +263,7 @@ def main(ctx, query=None):
         ctx.recognizer = utils.get_speech_recognizer(ctx.models_path, ctx.sound_model)
 
     if ctx.loop and Button:
-        ctx.leds.start()
+        ctx.leds.start("rotate")
         utils.play_sound("startup", audio_driver=ctx.sound_driver, language=ctx.language)
 
         # Let's introduce ourselves
