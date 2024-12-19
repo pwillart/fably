@@ -219,7 +219,7 @@ def record_until_silence(
 
     def callback(indata, frames, _time, _status):
         """This function is called for each audio block from the microphone"""
-        logging.debug("Recorded audio frame with %i samples", frames)
+        logging.info("Recorded audio frame with %i samples", frames)
         recognition_queue.put(bytes(indata))
         recorded_frames.append(bytes(indata))
 
@@ -230,7 +230,7 @@ def record_until_silence(
         channels=1,
         callback=callback,
     ):
-        logging.debug("Recording voice query...")
+        logging.info("Recording voice query...")
 
         while True:
             data = recognition_queue.get()
