@@ -243,7 +243,8 @@ def tell_story(ctx, query=None, terminate=False):
     """
 
     def tell_story_wrapper():
-        ctx.leds.start("twinkle")
+        # ctx.leds.start("twinkle")
+        logging.info("story_wrapper - query: %s", query)
         asyncio.run(run_story_loop(ctx, query, terminate))
 
     threading.Thread(target=tell_story_wrapper).start()
