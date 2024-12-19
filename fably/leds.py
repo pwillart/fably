@@ -14,7 +14,10 @@ from fably import utils
 class LEDs:
     """Class to manage a series of rgb LEDs."""
 
-    def __init__(self, colors, brightness=1, step=1, pause=0.007):
+    def __init__(self, colors=None, brightness=1, step=1, pause=0.007):
+        default_colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF]
+        if colors is None:
+            colors = default_colors
         self.colors = colors
         self.starting_colors = colors
         self.brightness = brightness

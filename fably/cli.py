@@ -265,7 +265,7 @@ def cli(
     ctx.stories_path = utils.resolve(stories_path)
     ctx.models_path = utils.resolve(models_path)
 
-    ctx.leds = leds.LEDs(STARTING_COLORS)
+    ctx.leds = leds.LEDs()
 
     ctx.running = True
     ctx.talking = False
