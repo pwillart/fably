@@ -56,15 +56,12 @@ class LEDs:
         if not apa102 or self.thread:
             return
         self.mode = mode
-        match mode:
-            case "rotate":
-                self.starting_colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF]
-            case "spin":
-                self.starting_colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF]
-            case "twinkle":
-                self.starting_colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF]
-            case _:
-                self.starting_colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF]
+        if mode == "rotate":
+            self.starting_colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF]
+        if mode == "spin":
+            self.starting_colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF]
+        if mode == "twinkle":
+            self.starting_colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF]
         self.running = True
         self.thread = threading.Thread(target=self._run)
         self.thread.start()
