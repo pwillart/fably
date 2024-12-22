@@ -30,6 +30,11 @@ load_dotenv()
     default="wav",
     help='The TTS format to use when generating stories. Defaults to "wav".',
 )
+@click.option(
+    "--language",
+    default="en",
+    help='The TTS langauge to use when generating stories. Defaults to "en".',
+)
 @click.option("--debug", is_flag=True, default=False, help="Enables debug logging.")
 def main(
     text,
@@ -37,6 +42,7 @@ def main(
     model,
     voice,
     audio_format,
+    language,
     debug,
 ):
 
@@ -48,12 +54,13 @@ def main(
     openai.api_key = os.getenv("OPENAI_API_KEY")
     openai_client = openai.Client()
 
-    logging.debug(
-        "Generating audio for '%s' with voice '%s' from model '%s' and format '%s...",
+    logging.info(
+        "Generating audio for '%s' with voice '%s' from model '%s' and format '%s' in '%s'",
         text,
         voice,
         model,
         audio_format,
+        language
     )
     response = openai_client.audio.speech.create(
         input=text, model=model, voice=voice, response_format=audio_format
