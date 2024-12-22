@@ -29,8 +29,8 @@ command_exists() {
 # ------------------ voices -------------------
 
 VOICE="nova"
-TTS="../../tools/tts.py"
-DEST="./fably/sounds"
+TTS="$HOME/fably/tools/tts.py"
+DEST="$HOME/fably/sounds"
 
 python $TTS --voice $VOICE "Bye! Come back soon!" $DEST/bye.wav
 python $TTS --voice $VOICE "Adios! Vuelve pronto!" $DEST/bye_es.wav --language es
