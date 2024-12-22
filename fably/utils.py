@@ -238,7 +238,7 @@ def record_until_silence(
             sample_counter = sample_counter + 1
             if recognizer.AcceptWaveform(data):
                 result = json.loads(recognizer.Result())
-                logging.info("'record_until_silence() - result: %s", result)
+                logging.info("record_until_silence() - result: %s", result)
                 logging.info("record_until_silence() - result[\"text\"]: %s", result["text"])
                 if result["text"]:
                     query.append(result["text"])
