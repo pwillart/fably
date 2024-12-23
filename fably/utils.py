@@ -126,6 +126,7 @@ def get_speech_recognizer(models_path, model_name):
 
 
 def write_audio_data_to_file(audio_data, audio_file, sample_rate):
+    logging.info("Soundfile library: %s", print(sf.__file__))
     """Write audio data to a file with the given sample rate."""
     sf.write(audio_file, audio_data, sample_rate)
 
