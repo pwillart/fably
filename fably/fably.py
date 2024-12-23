@@ -96,7 +96,7 @@ async def writer(ctx, story_queue, query=None):
         voice_query, query_sample_rate, query_local = utils.record_until_silence(
             ctx.recognizer, ctx.trim_first_frame
         )
-        ctx.leds.spin()
+        ctx.leds.start("spin")
         # logging.info("Voice query: ", query, query_local)
         query, voice_query_file = utils.transcribe(
             ctx.stt_client,
