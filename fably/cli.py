@@ -26,6 +26,7 @@ QUERIES_PATH = "./queries"
 STORIES_PATH = "./stories"
 MODELS_PATH = "./models"
 SOUND_MODEL = "vosk-model-small-en-us-0.15"
+SOUND_MODEL_ES = "vosk-model-small-es-0.42"
 SAMPLE_RATE = 24000
 STT_URL = OPENAI_URL
 STT_MODEL = "whisper-1"
@@ -91,6 +92,11 @@ load_dotenv()
     "--sound-model",
     default=SOUND_MODEL,
     help=f'The model to use to discriminate speech in voice queries. Defaults to "{SOUND_MODEL}".',
+)
+@click.option(
+    "--sound-model-es",
+    default=SOUND_MODEL_ES,
+    help=f'The model to use to discriminate speech in voice queries. Defaults to "{SOUND_MODEL_ES}".',
 )
 @click.option(
     "--stt-url",
@@ -208,6 +214,7 @@ def cli(
     stories_path,
     models_path,
     sound_model,
+    sound_model_es,
     stt_url,
     stt_model,
     llm_url,
@@ -236,6 +243,7 @@ def cli(
         logging.basicConfig(level=logging.INFO)
 
     ctx.sound_model = sound_model
+    ctx.sound_model_es = sound_model_es
     ctx.stt_url = stt_url
     ctx.stt_model = stt_model
     ctx.llm_url = llm_url

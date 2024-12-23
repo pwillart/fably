@@ -213,7 +213,7 @@ def record_until_silence(
     Records audio until silence is detected.
     This uses a tiny speech recognizer (vosk) to detect silence.
 
-    Returns an nparray of int16 samples.
+    Returns a nparray of int16 samples.
 
     NOTE: There are probably less overkill ways to do this but this works well enough for now.
     """
@@ -240,13 +240,16 @@ def record_until_silence(
         while True:
             data = recognition_queue.get()
             sample_counter = sample_counter + 1
-            if recognizer.AcceptWaveform(data):
+            accept_wave_form = recognizer.AcceptWaveform(data)
+            logging.info("AcceptWaveform: %s", accept_wave_form)
+            if accept_wave_form:
                 result = json.loads(recognizer.Result())
-                logging.info("record_until_silence() - result: %s", result)
+                logging.info("recognizer_result: %s", result)
                 logging.info("record_until_silence() - result[\"text\"]: %s", result["text"])
                 if result["text"]:
                     query.append(result["text"])
                     break
+
 
         logging.info("Detected silence?")
 

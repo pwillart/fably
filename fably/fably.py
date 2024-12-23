@@ -264,7 +264,8 @@ def main(ctx, query=None):
 
     # If a query is not present, introduce ourselves
     if not query:
-        ctx.recognizer = utils.get_speech_recognizer(ctx.models_path, ctx.sound_model)
+        sound_model = ctx.sound_model_es if ctx.language == 'es' else ctx.sound_model
+        ctx.recognizer = utils.get_speech_recognizer(ctx.models_path, sound_model)
         logging.info("Recognizer loaded: %s.", ctx.recognizer)
 
     if ctx.loop and Button:
