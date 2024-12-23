@@ -96,6 +96,7 @@ async def writer(ctx, story_queue, query=None):
         voice_query, query_sample_rate, query_local = utils.record_until_silence(
             ctx.recognizer, ctx.trim_first_frame
         )
+        ctx.leds.spin()
         # logging.info("Voice query: ", query, query_local)
         query, voice_query_file = utils.transcribe(
             ctx.stt_client,
@@ -105,7 +106,6 @@ async def writer(ctx, story_queue, query=None):
             query_sample_rate,
             ctx.queries_path,
         )
-        ctx.leds.spin()
         logging.info("Voice query: %s [%s]", query, query_local)
 
     # if not query.lower().startswith(ctx.query_guard):
