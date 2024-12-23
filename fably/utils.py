@@ -258,7 +258,8 @@ def record(
         recognizer, trim_first_frame=False, sample_rate=QUERY_SAMPLE_RATE, duration=10
 ):
     print("recording")
-    recording = sd.rec(int(duration * sample_rate), samplerate=sample_rate, channels=1, dtype='int16')
+    # recording = sd.rec(int(duration * sample_rate), samplerate=sample_rate, channels=1, dtype='int16')
+    recording = sd.rec(int(duration * sample_rate), channels=1, dtype='int16')
     sd.wait()  # Wait until recording is finished
     print("recording finished")
     return recording, sample_rate, f"{duration} seconds"
