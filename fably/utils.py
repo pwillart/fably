@@ -97,11 +97,13 @@ def get_speech_recognizer(models_path, model_name):
     """
     model_dir = Path(models_path) / Path(model_name)
 
+    logging.info(f"Loading speech recognizer from {model_dir}")
+
     if not model_dir.exists():
         zip_path = model_dir.with_suffix(".zip")
         model_url = f"https://alphacephei.com/vosk/models/{model_name}.zip"
 
-        logging.debug("Downloading the model from %s...", model_url)
+        logging.info("Downloading the model from %s...", model_url)
 
         # Download the model
         with requests.get(model_url, stream=True, timeout=10) as r:
@@ -117,9 +119,10 @@ def get_speech_recognizer(models_path, model_name):
 
         # Remove the zip file after extraction
         os.remove(zip_path)
-        logging.debug("Model %s downloaded and unpacked in %s", model_name, model_dir)
+        logging.info("Model %s downloaded and unpacked in %s", model_name, model_dir)
 
     model = Model(str(model_dir))
+    logging.info(f"Loaded speech recognizer model {model}")
     return KaldiRecognizer(
         model, QUERY_SAMPLE_RATE
     )  # The sample rate is fixed in the model

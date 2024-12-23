@@ -265,6 +265,7 @@ def main(ctx, query=None):
     # If a query is not present, introduce ourselves
     if not query:
         ctx.recognizer = utils.get_speech_recognizer(ctx.models_path, ctx.sound_model)
+        logging.info("Recognizer loaded: %s.", ctx.recognizer)
 
     if ctx.loop and Button:
         ctx.leds.start("rotate")
