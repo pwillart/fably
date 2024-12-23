@@ -207,48 +207,42 @@ def write_to_yaml(path, data):
 
 
 def record_until_silence(
-    recognizer, trim_first_frame=False, sample_rate=QUERY_SAMPLE_RATE
+        recognizer, trim_first_frame=False, sample_rate=QUERY_SAMPLE_RATE
 ):
     """
     Records audio until silence is detected.
     This uses a tiny speech recognizer (vosk) to detect silence.
 
-    Returns a nparray of int16 samples.
+    Returns an nparray of int16 samples.
 
     NOTE: There are probably less overkill ways to do this but this works well enough for now.
     """
     query = []
     recorded_frames = []
     recognition_queue = queue.Queue()
-    sample_counter = 0
 
     def callback(indata, frames, _time, _status):
         """This function is called for each audio block from the microphone"""
+        logging.debug("Recorded audio frame with %i samples", frames)
         recognition_queue.put(bytes(indata))
         recorded_frames.append(bytes(indata))
 
     with sd.RawInputStream(
-        samplerate=sample_rate,
-        blocksize=sample_rate // 4,
-        dtype="int16",
-        channels=1,
-        callback=callback,
+            samplerate=sample_rate,
+            blocksize=sample_rate // 4,
+            dtype="int16",
+            channels=1,
+            callback=callback,
     ):
-        logging.info("Recording voice query...")
+        logging.debug("Recording voice query...")
 
         while True:
             data = recognition_queue.get()
             if recognizer.AcceptWaveform(data):
-                result = recognizer.Result()
-                logging.info("result: %s", result)
+                result = json.loads(recognizer.Result())
                 if result["text"]:
                     query.append(result["text"])
                     break
-            else:
-                partial_result = recognizer.PartialResult()
-                logging.info("partial result: %s", partial_result)
-
-        logging.info("Detected silence?")
 
         final_result = json.loads(recognizer.FinalResult())
         query.append(final_result["text"])
