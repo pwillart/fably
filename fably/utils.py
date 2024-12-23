@@ -254,6 +254,14 @@ def record_until_silence(
 
     return np.concatenate(npframes, axis=0), sample_rate, " ".join(query)
 
+def record(
+        recognizer, trim_first_frame=False, sample_rate=QUERY_SAMPLE_RATE, duration=10
+):
+    print("recording")
+    recording = sd.rec(int(duration * sample_rate), samplerate=sample_rate, channels=1, dtype='int16')
+    sd.wait()  # Wait until recording is finished
+    print("recording finished")
+    return recording, sample_rate, f"{duration} seconds"
 
 def transcribe(
     stt_client,
