@@ -238,6 +238,7 @@ def record_until_silence(
         logging.info("Recording voice query...")
 
         while True:
+            data = recognition_queue.get()
             if recognizer.AcceptWaveform(data):
                 result = recognizer.Result()
                 logging.info("result: %s", result)
@@ -248,9 +249,7 @@ def record_until_silence(
             else:
                 partial_result = recognizer.PartialResult()
                 logging.info("partial result: %s", partial_result)
-            data = recognition_queue.get()
 
-            #data = audio_file.readframes(chunk_size)
             # sample_counter = sample_counter + 1
             # accept_wave_form = recognizer.AcceptWaveform(data)
             # logging.info("AcceptWaveform: %s", accept_wave_form)
