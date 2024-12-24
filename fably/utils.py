@@ -97,11 +97,13 @@ def get_speech_recognizer(models_path, model_name):
     """
     model_dir = Path(models_path) / Path(model_name)
 
+    logging.info(f"Loading speech recognizer from {model_dir}")
+
     if not model_dir.exists():
         zip_path = model_dir.with_suffix(".zip")
         model_url = f"https://alphacephei.com/vosk/models/{model_name}.zip"
 
-        logging.debug("Downloading the model from %s...", model_url)
+        logging.info("Downloading the model from %s...", model_url)
 
         # Download the model
         with requests.get(model_url, stream=True, timeout=10) as r:
@@ -117,16 +119,23 @@ def get_speech_recognizer(models_path, model_name):
 
         # Remove the zip file after extraction
         os.remove(zip_path)
-        logging.debug("Model %s downloaded and unpacked in %s", model_name, model_dir)
+        logging.info("Model %s downloaded and unpacked in %s", model_name, model_dir)
 
     model = Model(str(model_dir))
+    logging.info(f"Loaded speech recognizer model {model}")
     return KaldiRecognizer(
         model, QUERY_SAMPLE_RATE
     )  # The sample rate is fixed in the model
 
 
 def write_audio_data_to_file(audio_data, audio_file, sample_rate):
-    """Write audio data to a file with the given sample rate."""
+    """
+    Write audio data to a file with the given sample rate.
+    """
+    # logging.info("Soundfile library: %s", sf.__file__)
+    logging.info(f"audio_file: {audio_file}")
+    logging.info("audio_data size: %i; sample_rate: %i", len(audio_data), sample_rate)
+    logging.info("audio_data %s", audio_data)
     sf.write(audio_file, audio_data, sample_rate)
 
 
@@ -202,8 +211,53 @@ def write_to_yaml(path, data):
         yaml.dump(data, file, default_flow_style=False)
 
 
+def record_until_silence_test(sample_rate=QUERY_SAMPLE_RATE):
+    """
+    Records audio until silence is detected.
+    This uses a tiny speech recognizer (vosk) to detect silence.
+
+    Returns a nparray of int16 samples.
+
+    NOTE: There are probably less overkill ways to do this but this works well enough for now.
+    """
+    start = time.time()
+    # recording_length = 0
+    recorded_frames = []
+    q = []
+    sampling_queue = queue.Queue()
+
+    def callback(indata, frames, _time, _status):
+        """This function is called for each audio block from the microphone"""
+        logging.debug("Recorded audio frame with %i samples", frames)
+        recorded_frames.append(bytes(indata))
+        sampling_queue.put(bytes(indata))
+
+    with sd.RawInputStream(samplerate=sample_rate, blocksize=sample_rate // 4, dtype="int16", channels=1, callback=callback):
+        logging.debug("Recording voice query...")
+
+        while True:
+            sd.sleep(100)
+            data = sampling_queue.get()
+            recording_length = time.time() - start
+            print(f"recording_length: {recording_length}")
+            print(f"recorded {recording_length}")
+            print(f"data {data}")
+            # rms = np.sqrt(np.mean(data**2))
+            # print(f"RMS: {rms:.4f}")
+
+            # if (recording_length > 3 and rms <= 0.01) or recording_length > 10:
+            if recording_length > 5:
+                sd.sleep(int(2 / sample_rate * 1000))
+                break
+
+    print(f"Final recording_length: {recording_length}")
+
+    npframes = [np.frombuffer(frame, dtype=np.int16) for frame in recorded_frames]
+
+    return np.concatenate(npframes, axis=0), sample_rate, "n/a"
+
 def record_until_silence(
-    recognizer, trim_first_frame=False, sample_rate=QUERY_SAMPLE_RATE
+        recognizer, trim_first_frame=False, sample_rate=QUERY_SAMPLE_RATE
 ):
     """
     Records audio until silence is detected.
@@ -224,11 +278,11 @@ def record_until_silence(
         recorded_frames.append(bytes(indata))
 
     with sd.RawInputStream(
-        samplerate=sample_rate,
-        blocksize=sample_rate // 4,
-        dtype="int16",
-        channels=1,
-        callback=callback,
+            samplerate=sample_rate,
+            blocksize=sample_rate // 4,
+            dtype="int16",
+            channels=1,
+            callback=callback,
     ):
         logging.debug("Recording voice query...")
 
@@ -250,22 +304,12 @@ def record_until_silence(
 
     return np.concatenate(npframes, axis=0), sample_rate, " ".join(query)
 
-
-def transcribe(
-    stt_client,
-    audio_data,
-    stt_model="whisper-1",
-    language="en",
-    sample_rate=QUERY_SAMPLE_RATE,
-    audio_path=None,
-):
+def transcribe(stt_client, audio_data, stt_model="whisper-1", language="en", sample_rate=QUERY_SAMPLE_RATE, audio_path=None):
     """
     Transcribes the given audio data using the OpenAI API.
     """
-
     file_name = time.strftime("%d_%m_%Y-%H_%M_%S") + ".wav"
     logging.info('transcribing audio in language %s to %s', language, file_name)
-
 
     if not audio_path:
         audio_file = Path(file_name)
@@ -275,15 +319,17 @@ def transcribe(
             audio_file = audio_path / file_name
         else:
             audio_file = audio_path
-    logging.info("Recorded audio file: %s", audio_file)
+    logging.info("Save recorded audio file to: %s", audio_file)
+    # logging.info("Save recorded audio file to: %s", file_name)
     write_audio_data_to_file(audio_data, audio_file, sample_rate)
+    # write_audio_data_to_file(audio_data, file_name, sample_rate)
 
     logging.info("Sending voice query for transcription...")
 
     with open(audio_file, "rb") as query:
-        response = stt_client.audio.transcriptions.create(
-            model=stt_model, language=language, file=query
-        )
+    # with open(file_name, "rb") as query:
+        response = stt_client.audio.transcriptions.create(model=stt_model, language=language, file=query)
 
     logging.info('Transcribed text is: %s', response.text)
     return response.text, audio_file
+    # return response.text, file_name

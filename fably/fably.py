@@ -84,6 +84,7 @@ async def writer(ctx, story_queue, query=None):
     processes the returned content as a stream, chunks it into paragraphs and appends them
     to the queue for downstream processing.
     """
+    logging.info("*** writer ***")
 
     query_guard = ctx.query_guard_es if ctx.language == 'es' else ctx.query_guard
 
@@ -93,23 +94,19 @@ async def writer(ctx, story_queue, query=None):
     else:
         utils.play_sound("what_story", audio_driver=ctx.sound_driver, language=ctx.language)
 
-        voice_query, query_sample_rate, query_local = utils.record_until_silence(
-            ctx.recognizer, ctx.trim_first_frame
-        )
-        query, voice_query_file = utils.transcribe(
-            ctx.stt_client,
-            voice_query,
-            ctx.stt_model,
-            ctx.language,
-            query_sample_rate,
-            ctx.queries_path,
-        )
+        # voice_query, query_sample_rate, query_local = utils.record_until_silence()
+        voice_query, query_sample_rate, query_local = utils.record_until_silence(ctx.recognizer, ctx.trim_first_frame)
+
+        logging.info("Voice query: ", voice_query)
+        logging.info("Query sample rate %s: ", query_sample_rate)
+        # logging.info("Query local %s: ", query_local)
+        query, voice_query_file = utils.transcribe(ctx.stt_client, voice_query, ctx.stt_model, ctx.language, query_sample_rate, ctx.queries_path)
         logging.info("Voice query: %s [%s]", query, query_local)
 
     # if not query.lower().startswith(ctx.query_guard):
     if query.lower().find(query_guard) == -1:
         logging.warning(
-            "Sorry, I can only run queries that start with '%s' and '%s' does not",
+            "Sorry, I can only run queries that have '%s' and '%s' does not",
             query_guard,
             query,
         )
@@ -117,9 +114,8 @@ async def writer(ctx, story_queue, query=None):
         await story_queue.put(None)  # Indicates that we're done
         return
 
-    story_path = ctx.stories_path / utils.query_to_filename(
-        query, prefix=ctx.query_guard
-    )
+    utils.play_sound("let_me_think", audio_driver=ctx.sound_driver, language=ctx.language)
+    story_path = ctx.stories_path / utils.query_to_filename(query, prefix=ctx.query_guard)
     if ctx.ignore_cache or (
         not ctx.ignore_cache and not story_path.exists() and not story_path.is_dir()
     ):
@@ -127,11 +123,7 @@ async def writer(ctx, story_queue, query=None):
         story_path.mkdir(parents=True, exist_ok=True)
 
         logging.debug("Writing model info to disk...")
-        ctx.persist_runtime_params(
-            story_path / "info.yaml",
-            query=query,
-            query_local=query_local,
-        )
+        ctx.persist_runtime_params(story_path / "info.yaml", query=query, query_local=query_local)
 
         # This file will not exist when the query is passed as an argument
         if voice_query_file:
@@ -180,6 +172,7 @@ async def reader(ctx, story_queue, reading_queue):
     Processes the queue of paragraphs and sends them off to be read
     and synthesized into audio files to be read by the speaker.
     """
+    logging.info("*** reader ***")
     while ctx.talking:
         item = await story_queue.get()
         if item is None:
@@ -197,6 +190,7 @@ async def speaker(ctx, reading_queue):
     """
     Processes the queue of audio files and plays them.
     """
+    logging.info("*** speaker ***")
     loop = asyncio.get_running_loop()
     with concurrent.futures.ThreadPoolExecutor() as pool:
         while ctx.talking:
@@ -218,7 +212,7 @@ async def run_story_loop(ctx, query=None, terminate=False):
     The main loop for running the story.
     """
     ctx.talking = True
-    ctx.leds.start()
+    ctx.leds.start("rotate")
 
     story_queue = asyncio.Queue()
     reading_queue = asyncio.Queue()
@@ -242,6 +236,7 @@ def tell_story(ctx, query=None, terminate=False):
     """
 
     def tell_story_wrapper():
+        # ctx.leds.start("twinkle")
         asyncio.run(run_story_loop(ctx, query, terminate))
 
     threading.Thread(target=tell_story_wrapper).start()
@@ -258,10 +253,12 @@ def main(ctx, query=None):
 
     # If a query is not present, introduce ourselves
     if not query:
-        ctx.recognizer = utils.get_speech_recognizer(ctx.models_path, ctx.sound_model)
+        sound_model = ctx.sound_model_es if ctx.language == 'es' else ctx.sound_model
+        ctx.recognizer = utils.get_speech_recognizer(ctx.models_path, sound_model)
+        logging.info("Recognizer loaded: %s.", ctx.recognizer)
 
     if ctx.loop and Button:
-        ctx.leds.start()
+        ctx.leds.start("rotate")
         utils.play_sound("startup", audio_driver=ctx.sound_driver, language=ctx.language)
 
         # Let's introduce ourselves

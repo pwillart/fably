@@ -26,6 +26,7 @@ QUERIES_PATH = "./queries"
 STORIES_PATH = "./stories"
 MODELS_PATH = "./models"
 SOUND_MODEL = "vosk-model-small-en-us-0.15"
+SOUND_MODEL_ES = "vosk-model-small-es-0.42"
 SAMPLE_RATE = 24000
 STT_URL = OPENAI_URL
 STT_MODEL = "whisper-1"
@@ -50,9 +51,6 @@ SOUND_DRIVER = "alsa"
 # Query guard word. Basically the idea is that it will accept the query as long as there is the query word in it.
 QUERY_GUARD = "story"
 QUERY_GUARD_ES = "cuento"
-
-# STARTING_COLORS = [0xff0000, 0x00ff00, 0x0000ff]
-STARTING_COLORS = [0xFF0000, 0xFF0000, 0xFF0000]  # length determines the number of LEDS
 
 # Load environment variables from .env file, if available
 load_dotenv()
@@ -94,6 +92,11 @@ load_dotenv()
     "--sound-model",
     default=SOUND_MODEL,
     help=f'The model to use to discriminate speech in voice queries. Defaults to "{SOUND_MODEL}".',
+)
+@click.option(
+    "--sound-model-es",
+    default=SOUND_MODEL_ES,
+    help=f'The model to use to discriminate speech in voice queries. Defaults to "{SOUND_MODEL_ES}".',
 )
 @click.option(
     "--stt-url",
@@ -211,6 +214,7 @@ def cli(
     stories_path,
     models_path,
     sound_model,
+    sound_model_es,
     stt_url,
     stt_model,
     llm_url,
@@ -239,6 +243,7 @@ def cli(
         logging.basicConfig(level=logging.INFO)
 
     ctx.sound_model = sound_model
+    ctx.sound_model_es = sound_model_es
     ctx.stt_url = stt_url
     ctx.stt_model = stt_model
     ctx.llm_url = llm_url
@@ -268,7 +273,7 @@ def cli(
     ctx.stories_path = utils.resolve(stories_path)
     ctx.models_path = utils.resolve(models_path)
 
-    ctx.leds = leds.LEDs(STARTING_COLORS)
+    ctx.leds = leds.LEDs()
 
     ctx.running = True
     ctx.talking = False
