@@ -211,7 +211,7 @@ def write_to_yaml(path, data):
         yaml.dump(data, file, default_flow_style=False)
 
 
-def record_until_silence(sample_rate=QUERY_SAMPLE_RATE):
+def record_until_silence_test(sample_rate=QUERY_SAMPLE_RATE):
     """
     Records audio until silence is detected.
     This uses a tiny speech recognizer (vosk) to detect silence.
@@ -256,12 +256,14 @@ def record_until_silence(sample_rate=QUERY_SAMPLE_RATE):
 
     return np.concatenate(npframes, axis=0), sample_rate, "n/a"
 
-def record_until_silence_original(recognizer, trim_first_frame=False, sample_rate=QUERY_SAMPLE_RATE):
+def record_until_silence(
+        recognizer, trim_first_frame=False, sample_rate=QUERY_SAMPLE_RATE
+):
     """
     Records audio until silence is detected.
     This uses a tiny speech recognizer (vosk) to detect silence.
 
-    Returns a nparray of int16 samples.
+    Returns an nparray of int16 samples.
 
     NOTE: There are probably less overkill ways to do this but this works well enough for now.
     """
@@ -271,11 +273,17 @@ def record_until_silence_original(recognizer, trim_first_frame=False, sample_rat
 
     def callback(indata, frames, _time, _status):
         """This function is called for each audio block from the microphone"""
-        # logging.debug("Recorded audio frame with %i samples", frames)
+        logging.debug("Recorded audio frame with %i samples", frames)
         recognition_queue.put(bytes(indata))
         recorded_frames.append(bytes(indata))
 
-    with sd.RawInputStream(samplerate=sample_rate, blocksize=sample_rate // 4, dtype="int16", channels=1, callback=callback):
+    with sd.RawInputStream(
+            samplerate=sample_rate,
+            blocksize=sample_rate // 4,
+            dtype="int16",
+            channels=1,
+            callback=callback,
+    ):
         logging.debug("Recording voice query...")
 
         while True:
