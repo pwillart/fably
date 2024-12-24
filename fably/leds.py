@@ -54,7 +54,7 @@ class LEDs:
                 new_color = self.starting_colors[i] if i == self.step else 0x000000
                 strip.set_pixel_rgb(i, new_color, self.brightness)
                 self.colors[i] = new_color
-                self.step = 0 if self.step == 4 else self.step + 1
+            self.step = 0 if self.step == 4 else self.step + 1
             strip.show()
             time.sleep(self.pause * 50)
 
