@@ -228,7 +228,8 @@ def record_until_silence(samplerate=QUERY_SAMPLE_RATE, channels=1, threshold=0.0
         # q.append(indata.copy())
         q.append(bytes(indata))
 
-    stream = sd.InputStream(samplerate=samplerate, channels=channels, callback=callback)
+    # stream = sd.InputStream(samplerate=samplerate, channels=channels, callback=callback)
+    stream = sd.RawInputStream(samplerate=samplerate, channels=1, dtype="int16", callback=callback, blocksize=samplerate // 4)
 
     recorded_frames = []
     start = time.time()
