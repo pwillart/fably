@@ -29,7 +29,7 @@ class LEDs:
         self.twinkle_leds = [False, False, False, False, False]
         self.twinkle_brightness = [0, 0, 0, 0, 0]
         self.twinkle_direction = [False, False, False, False, False]
-        self.twinkle_brightness_step = 10
+        self.twinkle_brightness_step = 1
 
     def _run(self):
         # If we can't load the library, we can't do anything.
@@ -83,7 +83,7 @@ class LEDs:
                     print(f"New i: {i} brightness: {new_brightness} direction: {self.twinkle_direction[i]}")
                     strip.set_pixel_rgb(i, new_color, new_brightness)
             strip.show()
-            time.sleep(self.pause * 20)
+            time.sleep(self.pause)
 
         strip.clear_strip()
         strip.cleanup()
