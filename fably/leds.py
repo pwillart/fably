@@ -77,7 +77,7 @@ class LEDs:
                             # Pick new twinkle led
                             new_twinkle_led = self.pick_new_twinkle_led()
                             self.twinkle_leds[i] = False
-                            self.twinkle_leds[new_twinkle_led] = True
+                            self.twinkle_leds[new_twinkle_led[0]] = True
                             self.twinkle_direction[new_twinkle_led] = True
                     self.twinkle_brightness[i] = new_brightness
                     print(f"New i: {i} brightness: {new_brightness} direction: {self.twinkle_direction[i]}")
