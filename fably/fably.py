@@ -191,6 +191,7 @@ async def speaker(ctx, reading_queue):
     """
     # logging.info("*** speaker ***")
     logging.debug("Start LEDs twinkle")
+    ctx.leds.stop()
     ctx.leds.start("twinkle")
     loop = asyncio.get_running_loop()
     with concurrent.futures.ThreadPoolExecutor() as pool:
@@ -214,6 +215,7 @@ async def run_story_loop(ctx, query=None, terminate=False):
     """
     ctx.talking = True
     logging.debug("Start LEDs spin")
+    ctx.leds.stop()
     ctx.leds.start("spin")
 
     story_queue = asyncio.Queue()
@@ -261,6 +263,7 @@ def main(ctx, query=None):
 
     if ctx.loop and Button:
         logging.debug("Start LEDs rotate")
+        ctx.leds.stop()
         ctx.leds.start("rotate")
         utils.play_sound("startup", audio_driver=ctx.sound_driver, language=ctx.language)
 
