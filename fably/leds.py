@@ -121,4 +121,4 @@ class LEDs:
 
     def pick_new_twinkle_led(self):
         new_twinkle_led = random.sample(range(0, 4), 1)
-        return new_twinkle_led if not self.twinkle_leds[new_twinkle_led] else self.pick_new_twinkle_led()
+        return new_twinkle_led if not self.twinkle_leds[new_twinkle_led[0]] else self.pick_new_twinkle_led()
