@@ -190,9 +190,10 @@ async def speaker(ctx, reading_queue):
     Processes the queue of audio files and plays them.
     """
     # logging.info("*** speaker ***")
-    logging.debug("Start LEDs twinkle")
+    logging.debug("Start LEDs rotate")
     ctx.leds.stop()
-    ctx.leds.start("twinkle")
+    # ctx.leds.start("twinkle")
+    ctx.leds.start("rotate")
     loop = asyncio.get_running_loop()
     with concurrent.futures.ThreadPoolExecutor() as pool:
         while ctx.talking:
