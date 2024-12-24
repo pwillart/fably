@@ -116,7 +116,7 @@ class LEDs:
             self.thread.join()
             self.thread = None
             self.step = 1
-            self.starting_colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF]
+            self.colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF]
             self.twinkle_leds = [False, False, False, False, False]
             self.twinkle_brightness = [0, 0, 0, 0, 0]
             self.twinkle_direction = [False, False, False, False, False]
