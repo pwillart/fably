@@ -1,5 +1,5 @@
 """Code to manage a series of LEDs."""
-
+import random
 import time
 import threading
 
@@ -26,6 +26,10 @@ class LEDs:
         self.running = False
         self.thread = None
         self.mode = "rotate"  # Supported modes are "rotate", "spin", "twinkle"
+        self.twinkle_leds = [False, False, False, False, False]
+        self.twinkle_brightness = [0, 0, 0, 0, 0]
+        self.twinkle_direction = [False, False, False, False, False]
+        self.twinkle_brightness_step = 10
 
     def _run(self):
         # If we can't load the library, we can't do anything.
@@ -52,6 +56,31 @@ class LEDs:
             strip.show()
             time.sleep(self.pause)
 
+        while self.running and self.mode == "twinkle":
+            for i, color in enumerate(self.colors):
+                new_color = self.starting_colors[i] if self.twinkle_leds[i] == 1 else 0x000000
+                if self.twinkle_leds[i] == 1:
+                    current_brightness = self.twinkle_brightness[i]
+                    # new_brightness = current_brightness
+                    if self.twinkle_direction[i]:
+                        new_brightness = current_brightness + self.twinkle_brightness_step
+                        if new_brightness >= 100:
+                            new_brightness = 100
+                            self.twinkle_direction[i] = False
+                    else:
+                        new_brightness = current_brightness - self.twinkle_brightness_step
+                        if new_brightness < 0:
+                            new_brightness = 0
+                            # Pick new twinkle led
+                            new_twinkle_led = self.pick_new_twinkle_led()
+                            self.twinkle_leds[i] = False
+                            self.twinkle_leds[new_twinkle_led] = True
+                            self.twinkle_direction[new_twinkle_led] = True
+                    strip.set_pixel_rgb(i, new_color, new_brightness)
+
+            strip.show()
+            time.sleep(self.pause)
+
         strip.clear_strip()
         strip.cleanup()
 
@@ -64,7 +93,13 @@ class LEDs:
         if mode == "spin":
             self.starting_colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF]
         if mode == "twinkle":
-            self.starting_colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF]
+            # select two leds to start twinkling
+            active_leds = random.sample(range(0, 4), 2)
+            for i, color in enumerate(self.colors):
+                self.twinkle_leds[i] = True if i in active_leds else False
+                self.twinkle_brightness[i] = random.randint(0, 100) if i in active_leds else 0
+                self.twinkle_direction[i] = random.choice([True, False]) if i in active_leds else False
+            self.starting_colors = [0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF]
         self.running = True
         self.thread = threading.Thread(target=self._run)
         self.thread.start()
@@ -74,3 +109,10 @@ class LEDs:
             self.running = False
             self.thread.join()
             self.thread = None
+            self.twinkle_leds = [False, False, False, False, False]
+            self.twinkle_brightness = [0, 0, 0, 0, 0]
+            self.twinkle_direction = [False, False, False, False, False]
+
+    def pick_new_twinkle_led(self):
+        new_twinkle_led = random.sample(range(0, 4), 1)
+        return new_twinkle_led if not self.twinkle_leds[new_twinkle_led] else self.pick_new_twinkle_led()
