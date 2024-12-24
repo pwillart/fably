@@ -97,7 +97,6 @@ async def writer(ctx, story_queue, query=None):
         # voice_query, query_sample_rate, query_local = utils.record_until_silence()
         voice_query, query_sample_rate, query_local = utils.record_until_silence(ctx.recognizer, ctx.trim_first_frame)
 
-        ctx.leds.start("spin")
         logging.info("Voice query: ", voice_query)
         logging.info("Query sample rate %s: ", query_sample_rate)
         # logging.info("Query local %s: ", query_local)
@@ -115,6 +114,7 @@ async def writer(ctx, story_queue, query=None):
         await story_queue.put(None)  # Indicates that we're done
         return
 
+    utils.play_sound("let_me_think", audio_driver=ctx.sound_driver, language=ctx.language)
     story_path = ctx.stories_path / utils.query_to_filename(query, prefix=ctx.query_guard)
     if ctx.ignore_cache or (
         not ctx.ignore_cache and not story_path.exists() and not story_path.is_dir()
