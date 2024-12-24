@@ -72,7 +72,7 @@ class LEDs:
                             self.twinkle_direction[i] = False
                     else:
                         new_brightness = current_brightness - self.twinkle_brightness_step
-                        if new_brightness < 0:
+                        if new_brightness <= 0:
                             new_brightness = 0
                             # Pick new twinkle led
                             new_twinkle_led = self.pick_new_twinkle_led()
