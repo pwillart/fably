@@ -103,16 +103,15 @@ async def writer(ctx, story_queue, query=None):
         query, voice_query_file = utils.transcribe(ctx.stt_client, voice_query, ctx.stt_model, ctx.language, query_sample_rate, ctx.queries_path)
         logging.info("Voice query: %s [%s]", query, query_local)
 
-    # if not query.lower().startswith(ctx.query_guard):
-    if query.lower().find(query_guard) == -1:
-        logging.warning(
-            "Sorry, I can only run queries that have '%s' and '%s' does not",
-            query_guard,
-            query,
-        )
-        utils.play_sound("sorry", audio_driver=ctx.sound_driver, language=ctx.language)
-        await story_queue.put(None)  # Indicates that we're done
-        return
+    # if query.lower().find(query_guard) == -1:
+    #     logging.warning(
+    #         "Sorry, I can only run queries that have '%s' and '%s' does not",
+    #         query_guard,
+    #         query,
+    #     )
+    #     utils.play_sound("sorry", audio_driver=ctx.sound_driver, language=ctx.language)
+    #     await story_queue.put(None)  # Indicates that we're done
+    #     return
 
     utils.play_sound("let_me_think", audio_driver=ctx.sound_driver, language=ctx.language)
     story_path = ctx.stories_path / utils.query_to_filename(query, prefix=ctx.query_guard)
@@ -192,7 +191,7 @@ async def speaker(ctx, reading_queue):
     """
     # logging.info("*** speaker ***")
     logging.debug("Start LEDs twinkle")
-    ctx.leds.twinkle()
+    ctx.leds.start("twinkle")
     loop = asyncio.get_running_loop()
     with concurrent.futures.ThreadPoolExecutor() as pool:
         while ctx.talking:
