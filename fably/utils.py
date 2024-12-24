@@ -274,14 +274,14 @@ def record_until_silence_(sample_rate=QUERY_SAMPLE_RATE):
     """
     start = time.time()
     recording_length = 0
-    query = []
     recorded_frames = []
-    # recognition_queue = queue.Queue()
 
     def callback(indata, frames, _time, _status):
         """This function is called for each audio block from the microphone"""
         logging.debug("Recorded audio frame with %i samples", frames)
-        # recognition_queue.put(bytes(indata))
+        rms = np.sqrt(np.mean(indata**2))
+        print(f"RMS: {rms:.4f}")
+
         recorded_frames.append(bytes(indata))
 
     with sd.RawInputStream(samplerate=sample_rate, blocksize=sample_rate // 4, dtype="int16", channels=1, callback=callback):
@@ -292,18 +292,20 @@ def record_until_silence_(sample_rate=QUERY_SAMPLE_RATE):
             print(f"recording_length: {recording_length}")
             print(f"q {q}")
             # length = time.time() - start
-            # print(f"recorded {length}")
+            print(f"recorded {recording_length}")
             sd.sleep(100)
             data = np.concatenate(q, axis=0) if len(q) > 1 else data
             print(f"data {data}")
             q = []
             rms = np.sqrt(np.mean(data**2))
-            recorded_frames.append(data)
+            print(f"RMS 2: {rms:.4f}")
+
+            # recorded_frames.append(data)
 
             if (recording_length > 3 and rms <= 0.01) or recording_length > 10:
                 sd.sleep(int(2 / sample_rate * 1000))
-                data = np.concatenate(q, axis=0)
-                recorded_frames.append(data)
+                # data = np.concatenate(q, axis=0)
+                # recorded_frames.append(data)
                 break
 
     print(f"Final recording_length: {recording_length}")
@@ -351,16 +353,6 @@ def record_until_silence_original(recognizer, trim_first_frame=False, sample_rat
         npframes = npframes.pop(0)
 
     return np.concatenate(npframes, axis=0), sample_rate, " ".join(query)
-
-def record(
-        recognizer, trim_first_frame=False, sample_rate=QUERY_SAMPLE_RATE, duration=10
-):
-    print("recording")
-    # recording = sd.rec(int(duration * sample_rate), samplerate=sample_rate, channels=1, dtype='int16')
-    recording = sd.rec(int(duration * sample_rate), channels=1, dtype='int16')
-    sd.wait()  # Wait until recording is finished
-    print("recording finished")
-    return recording, sample_rate, f"{duration} seconds"
 
 def transcribe(
     stt_client,
