@@ -79,6 +79,7 @@ class LEDs:
                             self.twinkle_leds[i] = False
                             self.twinkle_leds[new_twinkle_led] = True
                             self.twinkle_direction[new_twinkle_led] = True
+                    self.twinkle_brightness[i] = new_brightness
                     print(f"New i: {i} brightness: {new_brightness} direction: {self.twinkle_direction[i]}")
                     strip.set_pixel_rgb(i, new_color, new_brightness)
             strip.show()
