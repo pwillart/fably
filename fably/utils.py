@@ -225,7 +225,8 @@ def record_until_silence(samplerate=QUERY_SAMPLE_RATE, channels=1, threshold=0.0
         if status:
             print(status)
         print(f"indata {bytes(indata)}")
-        q.append(indata.copy())
+        # q.append(indata.copy())
+        q.append(bytes(indata))
 
     stream = sd.InputStream(samplerate=samplerate, channels=channels, callback=callback)
 
