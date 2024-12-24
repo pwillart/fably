@@ -206,7 +206,7 @@ def write_to_yaml(path, data):
         yaml.dump(data, file, default_flow_style=False)
 
 
-def record_until_silence(samplerate=QUERY_SAMPLE_RATE, channels=1, threshold=0.1, extra_frames=50):
+def record_until_silence(samplerate=QUERY_SAMPLE_RATE, channels=1, threshold=0.01, extra_frames=50):
     """Records audio from the default input device until silence is detected.
 
     Args:
@@ -229,16 +229,19 @@ def record_until_silence(samplerate=QUERY_SAMPLE_RATE, channels=1, threshold=0.1
     stream = sd.InputStream(samplerate=samplerate, channels=channels, callback=callback)
 
     recorded_frames = []
+    start = time.time()
 
     with stream:
         while True:
+            length = time.time() - start
+            print(f"recorded {length}")
             sd.sleep(100)
             data = np.concatenate(q, axis=0)
             q = []
             rms = np.sqrt(np.mean(data**2))
             recorded_frames.append(data)
 
-            if rms <= threshold:
+            if rms <= threshold or length > 10:
 
                 sd.sleep(int(extra_frames / samplerate * 1000))
                 data = np.concatenate(q, axis=0)
