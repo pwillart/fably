@@ -58,7 +58,7 @@ class LEDs:
             time.sleep(self.pause * 25)
 
         while self.running and self.mode == "twinkle":
-            print("twinkle")
+            # print("twinkle")
             for i, color in enumerate(self.colors):
                 new_color = self.starting_colors[i] if self.twinkle_leds[i] == 1 else 0x000000
                 if self.twinkle_leds[i]:
@@ -89,7 +89,7 @@ class LEDs:
         strip.cleanup()
 
     def start(self, mode="rotate"):
-        print(f"leds {mode}")
+        # print(f"leds {mode}")
         if not apa102 or self.thread:
             return
         self.mode = mode
@@ -110,7 +110,7 @@ class LEDs:
         self.thread.start()
 
     def stop(self):
-        print(f"leds stop")
+        # print(f"leds stop")
         if self.thread and self.running:
             self.running = False
             self.thread.join()
