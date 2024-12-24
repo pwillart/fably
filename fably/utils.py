@@ -239,6 +239,7 @@ def record_until_silence(samplerate=QUERY_SAMPLE_RATE, channels=1, threshold=0.0
             length = time.time() - start
             print(f"recorded {length}")
             sd.sleep(100)
+            rms = threshold
             if len(q):
                 data = np.concatenate(q, axis=0) if len(q) > 1 else data
                 print(f"data {data}")
