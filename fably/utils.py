@@ -132,9 +132,10 @@ def write_audio_data_to_file(audio_data, audio_file, sample_rate):
     """
     Write audio data to a file with the given sample rate.
     """
-    logging.info("Soundfile library: %s", sf.__file__)
+    # logging.info("Soundfile library: %s", sf.__file__)
     logging.info(f"audio_file: {audio_file}")
     logging.info("audio_data size: %i; sample_rate: %i", len(audio_data), sample_rate)
+    logging.info("audio_data %s", audio_data)
     sf.write(audio_file, audio_data, sample_rate)
 
 
@@ -295,18 +296,10 @@ def record_until_silence_original(recognizer, trim_first_frame=False, sample_rat
 
     return np.concatenate(npframes, axis=0), sample_rate, " ".join(query)
 
-def transcribe(
-    stt_client,
-    audio_data,
-    stt_model="whisper-1",
-    language="en",
-    sample_rate=QUERY_SAMPLE_RATE,
-    audio_path=None,
-):
+def transcribe(stt_client, audio_data, stt_model="whisper-1", language="en", sample_rate=QUERY_SAMPLE_RATE, audio_path=None):
     """
     Transcribes the given audio data using the OpenAI API.
     """
-
     file_name = time.strftime("%d_%m_%Y-%H_%M_%S") + ".wav"
     logging.info('transcribing audio in language %s to %s', language, file_name)
 

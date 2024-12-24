@@ -84,6 +84,7 @@ async def writer(ctx, story_queue, query=None):
     processes the returned content as a stream, chunks it into paragraphs and appends them
     to the queue for downstream processing.
     """
+    logging.info("*** writer ***")
 
     query_guard = ctx.query_guard_es if ctx.language == 'es' else ctx.query_guard
 
@@ -100,15 +101,8 @@ async def writer(ctx, story_queue, query=None):
         ctx.leds.start("spin")
         logging.info("Voice query: ", voice_query)
         logging.info("Query sample rate %s: ", query_sample_rate)
-        logging.info("Query local %s: ", query_local)
-        query, voice_query_file = utils.transcribe(
-            ctx.stt_client,
-            voice_query,
-            ctx.stt_model,
-            ctx.language,
-            query_sample_rate,
-            ctx.queries_path,
-        )
+        # logging.info("Query local %s: ", query_local)
+        query, voice_query_file = utils.transcribe(ctx.stt_client, voice_query, ctx.stt_model, ctx.language, query_sample_rate, ctx.queries_path)
         logging.info("Voice query: %s [%s]", query, query_local)
 
     # if not query.lower().startswith(ctx.query_guard):
@@ -122,9 +116,7 @@ async def writer(ctx, story_queue, query=None):
         await story_queue.put(None)  # Indicates that we're done
         return
 
-    story_path = ctx.stories_path / utils.query_to_filename(
-        query, prefix=ctx.query_guard
-    )
+    story_path = ctx.stories_path / utils.query_to_filename(query, prefix=ctx.query_guard)
     if ctx.ignore_cache or (
         not ctx.ignore_cache and not story_path.exists() and not story_path.is_dir()
     ):
@@ -132,11 +124,7 @@ async def writer(ctx, story_queue, query=None):
         story_path.mkdir(parents=True, exist_ok=True)
 
         logging.debug("Writing model info to disk...")
-        ctx.persist_runtime_params(
-            story_path / "info.yaml",
-            query=query,
-            query_local=query_local,
-        )
+        ctx.persist_runtime_params(story_path / "info.yaml", query=query, query_local=query_local)
 
         # This file will not exist when the query is passed as an argument
         if voice_query_file:
@@ -185,6 +173,7 @@ async def reader(ctx, story_queue, reading_queue):
     Processes the queue of paragraphs and sends them off to be read
     and synthesized into audio files to be read by the speaker.
     """
+    logging.info("*** reader ***")
     while ctx.talking:
         item = await story_queue.get()
         if item is None:
@@ -202,6 +191,7 @@ async def speaker(ctx, reading_queue):
     """
     Processes the queue of audio files and plays them.
     """
+    logging.info("*** speaker ***")
     loop = asyncio.get_running_loop()
     with concurrent.futures.ThreadPoolExecutor() as pool:
         while ctx.talking:
@@ -248,7 +238,6 @@ def tell_story(ctx, query=None, terminate=False):
 
     def tell_story_wrapper():
         # ctx.leds.start("twinkle")
-        logging.info("story_wrapper - query: %s", query)
         asyncio.run(run_story_loop(ctx, query, terminate))
 
     threading.Thread(target=tell_story_wrapper).start()
