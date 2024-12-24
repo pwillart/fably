@@ -104,7 +104,7 @@ class LEDs:
                 self.twinkle_leds[i] = True if i in active_leds else False
                 self.twinkle_brightness[i] = random.randint(0, 100) if i in active_leds else 0
                 self.twinkle_direction[i] = random.choice([True, False]) if i in active_leds else False
-            self.starting_colors = [0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF]
+            self.colors = [0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF]
         self.running = True
         self.thread = threading.Thread(target=self._run)
         self.thread.start()
