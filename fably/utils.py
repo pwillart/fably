@@ -224,6 +224,7 @@ def record_until_silence(samplerate=QUERY_SAMPLE_RATE, channels=1, threshold=0.0
     def callback(indata, frames, time, status):
         if status:
             print(status)
+        print(f"indata {bytes(indata)}")
         q.append(indata.copy())
 
     stream = sd.InputStream(samplerate=samplerate, channels=channels, callback=callback)
@@ -236,7 +237,9 @@ def record_until_silence(samplerate=QUERY_SAMPLE_RATE, channels=1, threshold=0.0
             length = time.time() - start
             print(f"recorded {length}")
             sd.sleep(100)
+            print(f"q {q}")
             data = np.concatenate(q, axis=0)
+            print(f"data {data}")
             q = []
             rms = np.sqrt(np.mean(data**2))
             recorded_frames.append(data)
