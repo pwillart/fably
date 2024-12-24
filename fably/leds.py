@@ -55,7 +55,7 @@ class LEDs:
                 self.colors[i] = new_color
             self.step = 0 if self.step == 4 else self.step + 1
             strip.show()
-            time.sleep(self.pause * 50)
+            time.sleep(self.pause * 25)
 
         while self.running and self.mode == "twinkle":
             print("twinkle")
