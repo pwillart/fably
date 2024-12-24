@@ -282,7 +282,6 @@ def record_until_silence_(sample_rate=QUERY_SAMPLE_RATE):
         """This function is called for each audio block from the microphone"""
         logging.debug("Recorded audio frame with %i samples", frames)
         recorded_frames.append(bytes(indata))
-        q.append(indata.copy())
         sampling_queue.put(bytes(indata))
 
     with sd.RawInputStream(samplerate=sample_rate, blocksize=sample_rate // 4, dtype="int16", channels=1, callback=callback):
@@ -290,18 +289,16 @@ def record_until_silence_(sample_rate=QUERY_SAMPLE_RATE):
 
         while True:
             sd.sleep(100)
-            # data = sampling_queue.get()
-            data = np.concatenate(q, axis=0)
+            data = sampling_queue.get()
             recording_length = time.time() - start
             print(f"recording_length: {recording_length}")
-            print(f"q {q}")
             print(f"recorded {recording_length}")
             print(f"data {data}")
-            q = []
-            rms = np.sqrt(np.mean(data**2))
-            print(f"RMS: {rms:.4f}")
+            # rms = np.sqrt(np.mean(data**2))
+            # print(f"RMS: {rms:.4f}")
 
-            if (recording_length > 3 and rms <= 0.01) or recording_length > 10:
+            # if (recording_length > 3 and rms <= 0.01) or recording_length > 10:
+            if recording_length > 5:
                 sd.sleep(int(2 / sample_rate * 1000))
                 break
 
