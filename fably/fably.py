@@ -93,7 +93,7 @@ async def writer(ctx, story_queue, query=None):
     else:
         utils.play_sound("what_story", audio_driver=ctx.sound_driver, language=ctx.language)
 
-        voice_query, query_sample_rate, query_local = utils.record_until_silence_()
+        voice_query, query_sample_rate, query_local = utils.record_until_silence()
         # voice_query, query_sample_rate, query_local = utils.record_until_silence(ctx.recognizer, ctx.trim_first_frame)
         # voice_query, query_sample_rate, query_local = utils.record(ctx.recognizer, ctx.trim_first_frame, 10)
 

@@ -263,7 +263,7 @@ def write_to_yaml(path, data):
 #
 #     return recorded_audio, samplerate, "N/A"
 
-def record_until_silence_(sample_rate=QUERY_SAMPLE_RATE):
+def record_until_silence(sample_rate=QUERY_SAMPLE_RATE):
     """
     Records audio until silence is detected.
     This uses a tiny speech recognizer (vosk) to detect silence.
