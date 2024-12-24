@@ -224,36 +224,39 @@ def record_until_silence(samplerate=QUERY_SAMPLE_RATE, channels=1, threshold=0.0
     def callback(indata, frames, time, status):
         if status:
             print(status)
-        print(f"indata: {bytes(indata)}")
-        # q.append(indata.copy())
-        q.append(bytes(indata))
+        # Process the audio data (example: calculate the RMS value)
+        rms = np.sqrt(np.mean(indata**2))
+        print(f"RMS: {rms:.4f}")
+        q.append(indata.copy())
 
     # stream = sd.InputStream(samplerate=samplerate, channels=channels, callback=callback)
-    stream = sd.RawInputStream(samplerate=samplerate, channels=1, dtype="int16", callback=callback, blocksize=samplerate // 4)
+    stream = sd.InputStream(samplerate=samplerate, channels=1, dtype="int16", callback=callback, blocksize=samplerate // 4)
 
     recorded_frames = []
     start = time.time()
 
     with stream:
-        while True:
-            print(f"q {q}")
-            length = time.time() - start
-            print(f"recorded {length}")
-            sd.sleep(100)
-            rms = threshold
-            if len(q):
-                data = np.concatenate(q, axis=0) if len(q) > 1 else data
-                print(f"data {data}")
-                q = []
-                rms = np.sqrt(np.mean(data**2))
-                recorded_frames.append(data)
-
-            if rms <= threshold or length > 10:
-                sd.sleep(int(extra_frames / samplerate * 1000))
-                if len(q):
-                    data = np.concatenate(q, axis=0)
-                    recorded_frames.append(data)
-                break
+        print("Press Enter to stop recording...")
+        input()
+        # while True:
+        #     print(f"q {q}")
+        #     length = time.time() - start
+        #     print(f"recorded {length}")
+        #     sd.sleep(100)
+        #     rms = threshold
+        #     if len(q):
+        #         data = np.concatenate(q, axis=0) if len(q) > 1 else data
+        #         print(f"data {data}")
+        #         q = []
+        #         rms = np.sqrt(np.mean(data**2))
+        #         recorded_frames.append(data)
+        #
+        #     if rms <= threshold or length > 10:
+        #         sd.sleep(int(extra_frames / samplerate * 1000))
+        #         if len(q):
+        #             data = np.concatenate(q, axis=0)
+        #             recorded_frames.append(data)
+        #         break
 
 
     recorded_audio = np.concatenate(recorded_frames, axis=0)
@@ -277,7 +280,7 @@ def record_until_silence_original(
 
     def callback(indata, frames, _time, _status):
         """This function is called for each audio block from the microphone"""
-        logging.debug("Recorded audio frame with %i samples", frames)
+        # logging.debug("Recorded audio frame with %i samples", frames)
         recognition_queue.put(bytes(indata))
         recorded_frames.append(bytes(indata))
 
