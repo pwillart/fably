@@ -206,66 +206,113 @@ def write_to_yaml(path, data):
         yaml.dump(data, file, default_flow_style=False)
 
 
-def record_until_silence(samplerate=QUERY_SAMPLE_RATE, channels=1, threshold=0.01, extra_frames=50):
-    """Records audio from the default input device until silence is detected.
+# def record_until_silence(samplerate=QUERY_SAMPLE_RATE, channels=1, threshold=0.01, extra_frames=50):
+#     """Records audio from the default input device until silence is detected.
+#
+#     Args:
+#         samplerate (int): Sampling rate in Hz.
+#         channels (int): Number of channels.
+#         threshold (float): RMS value below which audio is considered silence.
+#         extra_frames (int): Number of extra frames to record after silence.
+#
+#     Returns:
+#         numpy.ndarray: The recorded audio data.
+#     """
+#
+#     q = []
+#
+#     def callback(indata, frames, time, status):
+#         if status:
+#             print(status)
+#         # Process the audio data (example: calculate the RMS value)
+#         rms = np.sqrt(np.mean(indata**2))
+#         print(f"RMS: {rms:.4f}")
+#         q.append(indata.copy())
+#
+#     # stream = sd.InputStream(samplerate=samplerate, channels=channels, callback=callback)
+#     stream = sd.InputStream(samplerate=samplerate, channels=1, dtype="int16", callback=callback, blocksize=samplerate // 4)
+#
+#     recorded_frames = []
+#     start = time.time()
+#
+#     with stream:
+#         print("Press Enter to stop recording...")
+#         input()
+#         # while True:
+#         #     print(f"q {q}")
+#         #     length = time.time() - start
+#         #     print(f"recorded {length}")
+#         #     sd.sleep(100)
+#         #     rms = threshold
+#         #     if len(q):
+#         #         data = np.concatenate(q, axis=0) if len(q) > 1 else data
+#         #         print(f"data {data}")
+#         #         q = []
+#         #         rms = np.sqrt(np.mean(data**2))
+#         #         recorded_frames.append(data)
+#         #
+#         #     if rms <= threshold or length > 10:
+#         #         sd.sleep(int(extra_frames / samplerate * 1000))
+#         #         if len(q):
+#         #             data = np.concatenate(q, axis=0)
+#         #             recorded_frames.append(data)
+#         #         break
+#
+#
+#     recorded_audio = np.concatenate(recorded_frames, axis=0)
+#
+#     return recorded_audio, samplerate, "N/A"
 
-    Args:
-        samplerate (int): Sampling rate in Hz.
-        channels (int): Number of channels.
-        threshold (float): RMS value below which audio is considered silence.
-        extra_frames (int): Number of extra frames to record after silence.
-
-    Returns:
-        numpy.ndarray: The recorded audio data.
+def record_until_silence_(sample_rate=QUERY_SAMPLE_RATE):
     """
+    Records audio until silence is detected.
+    This uses a tiny speech recognizer (vosk) to detect silence.
 
-    q = []
+    Returns a nparray of int16 samples.
 
-    def callback(indata, frames, time, status):
-        if status:
-            print(status)
-        # Process the audio data (example: calculate the RMS value)
-        rms = np.sqrt(np.mean(indata**2))
-        print(f"RMS: {rms:.4f}")
-        q.append(indata.copy())
-
-    # stream = sd.InputStream(samplerate=samplerate, channels=channels, callback=callback)
-    stream = sd.InputStream(samplerate=samplerate, channels=1, dtype="int16", callback=callback, blocksize=samplerate // 4)
-
-    recorded_frames = []
+    NOTE: There are probably less overkill ways to do this but this works well enough for now.
+    """
     start = time.time()
+    recording_length = 0
+    query = []
+    recorded_frames = []
+    # recognition_queue = queue.Queue()
 
-    with stream:
-        print("Press Enter to stop recording...")
-        input()
-        # while True:
-        #     print(f"q {q}")
-        #     length = time.time() - start
-        #     print(f"recorded {length}")
-        #     sd.sleep(100)
-        #     rms = threshold
-        #     if len(q):
-        #         data = np.concatenate(q, axis=0) if len(q) > 1 else data
-        #         print(f"data {data}")
-        #         q = []
-        #         rms = np.sqrt(np.mean(data**2))
-        #         recorded_frames.append(data)
-        #
-        #     if rms <= threshold or length > 10:
-        #         sd.sleep(int(extra_frames / samplerate * 1000))
-        #         if len(q):
-        #             data = np.concatenate(q, axis=0)
-        #             recorded_frames.append(data)
-        #         break
+    def callback(indata, frames, _time, _status):
+        """This function is called for each audio block from the microphone"""
+        logging.debug("Recorded audio frame with %i samples", frames)
+        # recognition_queue.put(bytes(indata))
+        recorded_frames.append(bytes(indata))
 
+    with sd.RawInputStream(samplerate=sample_rate, blocksize=sample_rate // 4, dtype="int16", channels=1, callback=callback):
+        logging.debug("Recording voice query...")
 
-    recorded_audio = np.concatenate(recorded_frames, axis=0)
+        while True:
+            recording_length = time.time() - start
+            print(f"recording_length: {recording_length}")
+            print(f"q {q}")
+            # length = time.time() - start
+            # print(f"recorded {length}")
+            sd.sleep(100)
+            data = np.concatenate(q, axis=0) if len(q) > 1 else data
+            print(f"data {data}")
+            q = []
+            rms = np.sqrt(np.mean(data**2))
+            recorded_frames.append(data)
 
-    return recorded_audio, samplerate, "N/A"
+            if (recording_length > 3 and rms <= 0.01) or recording_length > 10:
+                sd.sleep(int(2 / sample_rate * 1000))
+                data = np.concatenate(q, axis=0)
+                recorded_frames.append(data)
+                break
 
-def record_until_silence_original(
-        recognizer, trim_first_frame=False, sample_rate=QUERY_SAMPLE_RATE
-):
+    print(f"Final recording_length: {recording_length}")
+
+    npframes = [np.frombuffer(frame, dtype=np.int16) for frame in recorded_frames]
+
+    return np.concatenate(npframes, axis=0), sample_rate, "n/a"
+
+def record_until_silence_original(recognizer, trim_first_frame=False, sample_rate=QUERY_SAMPLE_RATE):
     """
     Records audio until silence is detected.
     This uses a tiny speech recognizer (vosk) to detect silence.
@@ -284,13 +331,7 @@ def record_until_silence_original(
         recognition_queue.put(bytes(indata))
         recorded_frames.append(bytes(indata))
 
-    with sd.RawInputStream(
-            samplerate=sample_rate,
-            blocksize=sample_rate // 4,
-            dtype="int16",
-            channels=1,
-            callback=callback,
-    ):
+    with sd.RawInputStream(samplerate=sample_rate, blocksize=sample_rate // 4, dtype="int16", channels=1, callback=callback):
         logging.debug("Recording voice query...")
 
         while True:
