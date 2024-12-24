@@ -311,25 +311,25 @@ def transcribe(stt_client, audio_data, stt_model="whisper-1", language="en", sam
     file_name = time.strftime("%d_%m_%Y-%H_%M_%S") + ".wav"
     logging.info('transcribing audio in language %s to %s', language, file_name)
 
-    # if not audio_path:
-    #     audio_file = Path(file_name)
-    # else:
-    #     audio_path = audio_path if isinstance(audio_path, Path) else Path(audio_path)
-    #     if audio_path.is_dir():
-    #         audio_file = audio_path / file_name
-    #     else:
-    #         audio_file = audio_path
-    # logging.info("Save recorded audio file to: %s", audio_file)
-    logging.info("Save recorded audio file to: %s", file_name)
-    # write_audio_data_to_file(audio_data, audio_file, sample_rate)
-    write_audio_data_to_file(audio_data, file_name, sample_rate)
+    if not audio_path:
+        audio_file = Path(file_name)
+    else:
+        audio_path = audio_path if isinstance(audio_path, Path) else Path(audio_path)
+        if audio_path.is_dir():
+            audio_file = audio_path / file_name
+        else:
+            audio_file = audio_path
+    logging.info("Save recorded audio file to: %s", audio_file)
+    # logging.info("Save recorded audio file to: %s", file_name)
+    write_audio_data_to_file(audio_data, audio_file, sample_rate)
+    # write_audio_data_to_file(audio_data, file_name, sample_rate)
 
     logging.info("Sending voice query for transcription...")
 
-    # with open(audio_file, "rb") as query:
-    with open(file_name, "rb") as query:
+    with open(audio_file, "rb") as query:
+    # with open(file_name, "rb") as query:
         response = stt_client.audio.transcriptions.create(model=stt_model, language=language, file=query)
 
     logging.info('Transcribed text is: %s', response.text)
-    # return response.text, audio_file
-    return response.text, file_name
+    return response.text, audio_file
+    # return response.text, file_name
