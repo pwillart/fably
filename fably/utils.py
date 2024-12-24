@@ -206,14 +206,58 @@ def write_to_yaml(path, data):
         yaml.dump(data, file, default_flow_style=False)
 
 
-def record_until_silence(
+def record_until_silence(samplerate=QUERY_SAMPLE_RATE, channels=1, threshold=0.1, extra_frames=50):
+    """Records audio from the default input device until silence is detected.
+
+    Args:
+        samplerate (int): Sampling rate in Hz.
+        channels (int): Number of channels.
+        threshold (float): RMS value below which audio is considered silence.
+        extra_frames (int): Number of extra frames to record after silence.
+
+    Returns:
+        numpy.ndarray: The recorded audio data.
+    """
+
+    q = []
+
+    def callback(indata, frames, time, status):
+        if status:
+            print(status)
+        q.append(indata.copy())
+
+    stream = sd.InputStream(samplerate=samplerate, channels=channels, callback=callback)
+
+    recorded_frames = []
+
+    with stream:
+        while True:
+            sd.sleep(100)
+            data = np.concatenate(q, axis=0)
+            q = []
+            rms = np.sqrt(np.mean(data**2))
+            recorded_frames.append(data)
+
+            if rms <= threshold:
+
+                sd.sleep(int(extra_frames / samplerate * 1000))
+                data = np.concatenate(q, axis=0)
+                recorded_frames.append(data)
+                break
+
+
+    recorded_audio = np.concatenate(recorded_frames, axis=0)
+
+    return recorded_audio, samplerate, "N/A"
+
+def record_until_silence_original(
         recognizer, trim_first_frame=False, sample_rate=QUERY_SAMPLE_RATE
 ):
     """
     Records audio until silence is detected.
     This uses a tiny speech recognizer (vosk) to detect silence.
 
-    Returns an nparray of int16 samples.
+    Returns a nparray of int16 samples.
 
     NOTE: There are probably less overkill ways to do this but this works well enough for now.
     """
