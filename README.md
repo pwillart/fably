@@ -4,8 +4,6 @@ Use AI to generate and tell bedtime stories to kids.
 
 Run it on your computer or on very cheap (<50$) hardware.
 
-<img src="https://raw.githubusercontent.com/stefanom/fably/main/images/fably.webp" alt="Fably" width="500" height="500"/>
-
 Watch Fably running on a Raspberry PI Zero 2W below:
 
 [![Fably running on a Raspberry PI Zero 2W](https://raw.githubusercontent.com/stefanom/fably/main/images/video_screenshot.png)](https://www.youtube.com/watch?v=zILPuh84OcY "Fably running on a Raspberry PI Zero 2W")
