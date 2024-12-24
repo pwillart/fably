@@ -235,21 +235,22 @@ def record_until_silence(samplerate=QUERY_SAMPLE_RATE, channels=1, threshold=0.0
 
     with stream:
         while True:
+            print(f"q {q}")
             length = time.time() - start
             print(f"recorded {length}")
             sd.sleep(100)
-            print(f"q {q}")
-            data = np.concatenate(q, axis=0) if len(q) > 1 else data
-            print(f"data {data}")
-            q = []
-            rms = np.sqrt(np.mean(data**2))
-            recorded_frames.append(data)
+            if len(q):
+                data = np.concatenate(q, axis=0) if len(q) > 1 else data
+                print(f"data {data}")
+                q = []
+                rms = np.sqrt(np.mean(data**2))
+                recorded_frames.append(data)
 
             if rms <= threshold or length > 10:
-
                 sd.sleep(int(extra_frames / samplerate * 1000))
-                data = np.concatenate(q, axis=0)
-                recorded_frames.append(data)
+                if len(q):
+                    data = np.concatenate(q, axis=0)
+                    recorded_frames.append(data)
                 break
 
 
