@@ -114,7 +114,7 @@ async def writer(ctx, story_queue, query=None):
     # if not query.lower().startswith(ctx.query_guard):
     if query.lower().find(query_guard) == -1:
         logging.warning(
-            "Sorry, I can only run queries that start with '%s' and '%s' does not",
+            "Sorry, I can only run queries that have '%s' and '%s' does not",
             query_guard,
             query,
         )

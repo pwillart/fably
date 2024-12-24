@@ -129,8 +129,12 @@ def get_speech_recognizer(models_path, model_name):
 
 
 def write_audio_data_to_file(audio_data, audio_file, sample_rate):
+    """
+    Write audio data to a file with the given sample rate.
+    """
     logging.info("Soundfile library: %s", sf.__file__)
-    """Write audio data to a file with the given sample rate."""
+    logging.info(f"audio_file: {audio_file}")
+    logging.info("audio_data size: %i; sample_rate: %i", len(audio_data), sample_rate)
     sf.write(audio_file, audio_data, sample_rate)
 
 
@@ -205,63 +209,6 @@ def write_to_yaml(path, data):
     with open(path, "w", encoding="utf-8") as file:
         yaml.dump(data, file, default_flow_style=False)
 
-
-# def record_until_silence(samplerate=QUERY_SAMPLE_RATE, channels=1, threshold=0.01, extra_frames=50):
-#     """Records audio from the default input device until silence is detected.
-#
-#     Args:
-#         samplerate (int): Sampling rate in Hz.
-#         channels (int): Number of channels.
-#         threshold (float): RMS value below which audio is considered silence.
-#         extra_frames (int): Number of extra frames to record after silence.
-#
-#     Returns:
-#         numpy.ndarray: The recorded audio data.
-#     """
-#
-#     q = []
-#
-#     def callback(indata, frames, time, status):
-#         if status:
-#             print(status)
-#         # Process the audio data (example: calculate the RMS value)
-#         rms = np.sqrt(np.mean(indata**2))
-#         print(f"RMS: {rms:.4f}")
-#         q.append(indata.copy())
-#
-#     # stream = sd.InputStream(samplerate=samplerate, channels=channels, callback=callback)
-#     stream = sd.InputStream(samplerate=samplerate, channels=1, dtype="int16", callback=callback, blocksize=samplerate // 4)
-#
-#     recorded_frames = []
-#     start = time.time()
-#
-#     with stream:
-#         print("Press Enter to stop recording...")
-#         input()
-#         # while True:
-#         #     print(f"q {q}")
-#         #     length = time.time() - start
-#         #     print(f"recorded {length}")
-#         #     sd.sleep(100)
-#         #     rms = threshold
-#         #     if len(q):
-#         #         data = np.concatenate(q, axis=0) if len(q) > 1 else data
-#         #         print(f"data {data}")
-#         #         q = []
-#         #         rms = np.sqrt(np.mean(data**2))
-#         #         recorded_frames.append(data)
-#         #
-#         #     if rms <= threshold or length > 10:
-#         #         sd.sleep(int(extra_frames / samplerate * 1000))
-#         #         if len(q):
-#         #             data = np.concatenate(q, axis=0)
-#         #             recorded_frames.append(data)
-#         #         break
-#
-#
-#     recorded_audio = np.concatenate(recorded_frames, axis=0)
-#
-#     return recorded_audio, samplerate, "N/A"
 
 def record_until_silence(sample_rate=QUERY_SAMPLE_RATE):
     """
