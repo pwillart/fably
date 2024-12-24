@@ -291,6 +291,7 @@ def cli(
     try:
         fably.main(ctx, query)
     finally:
+        logging.debug("Stop LEDs")
         ctx.leds.stop()
 
 
