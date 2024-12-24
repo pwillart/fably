@@ -49,14 +49,14 @@ class LEDs:
             time.sleep(self.pause)
 
         while self.running and self.mode == "spin":
-            print("spin")
+            print(f"spin step:{self.step}")
             for i, color in enumerate(self.colors):
                 new_color = self.starting_colors[i] if i == self.step else 0x000000
                 strip.set_pixel_rgb(i, new_color, self.brightness)
                 self.colors[i] = new_color
                 self.step = 0 if self.step == 4 else self.step + 1
             strip.show()
-            time.sleep(self.pause)
+            time.sleep(self.pause * 50)
 
         while self.running and self.mode == "twinkle":
             print("twinkle")
@@ -81,7 +81,7 @@ class LEDs:
                             self.twinkle_direction[new_twinkle_led] = True
                     strip.set_pixel_rgb(i, new_color, new_brightness)
             strip.show()
-            time.sleep(self.pause)
+            time.sleep(self.pause * 20)
 
         strip.clear_strip()
         strip.cleanup()
