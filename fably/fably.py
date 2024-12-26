@@ -93,9 +93,10 @@ async def writer(ctx, story_queue, query=None):
         voice_query_file = None
     else:
         utils.play_sound("what_story", audio_driver=ctx.sound_driver, language=ctx.language)
+        ctx.listening = True
 
         # voice_query, query_sample_rate, query_local = utils.record_until_silence()
-        voice_query, query_sample_rate, query_local = utils.record_until_silence(ctx.recognizer, ctx.trim_first_frame)
+        voice_query, query_sample_rate, query_local = utils.record_until_silence(ctx.recognizer, ctx.is_listening, ctx.trim_first_frame)
 
         # logging.info("Voice query: ", voice_query)
         # logging.info("Query sample rate %s: ", query_sample_rate)
@@ -282,6 +283,7 @@ def main(ctx, query=None):
 
             if pressed_for < ctx.button.hold_time:
                 if not ctx.talking:
+                    logging.info("button click")
                     # logging.info("This is a short press. Telling a story...")
                     tell_story(ctx, terminate=False)
                     # logging.debug("Forked the storytelling thread")
@@ -308,6 +310,8 @@ def main(ctx, query=None):
             # logging.debug("Button 2 released after %f seconds", pressed_for)
 
             if pressed_for < ctx.button.hold_time:
+                if ctx.listening:
+                    ctx.listening = False
                 if not ctx.talking:
                     # logging.info("This is a short press. Changing language...")
                     ctx.language = 'es' if ctx.language == 'en' else 'en'

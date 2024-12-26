@@ -254,7 +254,7 @@ def record_until_silence_test(sample_rate=QUERY_SAMPLE_RATE):
 
     return np.concatenate(npframes, axis=0), sample_rate, "n/a"
 
-def record_until_silence(recognizer, trim_first_frame=False, sample_rate=QUERY_SAMPLE_RATE):
+def record_until_silence(recognizer, is_listening, trim_first_frame=False, sample_rate=QUERY_SAMPLE_RATE):
     """
     Records audio until silence is detected.
     This uses a tiny speech recognizer (vosk) to detect silence.
@@ -276,7 +276,8 @@ def record_until_silence(recognizer, trim_first_frame=False, sample_rate=QUERY_S
     with sd.RawInputStream(samplerate=sample_rate, blocksize=sample_rate // 4, dtype="int16", channels=1, callback=callback):
         # logging.debug("Recording voice query...")
 
-        while True:
+        # while True:
+        while is_listening():
             data = recognition_queue.get()
             if recognizer.AcceptWaveform(data):
                 result = json.loads(recognizer.Result())
