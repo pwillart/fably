@@ -6,6 +6,7 @@ import asyncio
 import concurrent.futures
 import logging
 import shutil
+import socket
 import time
 import threading
 
@@ -248,6 +249,25 @@ def tell_story(ctx, query=None, terminate=False):
     threading.Thread(target=tell_story_wrapper).start()
 
 
+def tell_ip_address(ctx, ip_addr):
+    """
+    Forks off a thread to tell the toy's ip address.
+    """
+
+    async def synthesize_ip_address():
+        response = await ctx.tts_client.audio.speech.create(
+            input=ip_addr,
+            model=ctx.tts_model,
+            voice=ctx.tts_voice,
+            response_format=ctx.tts_format,
+        )
+        audio_file = ctx.stories_path / f"ip_address.{ctx.tts_format}"
+        response.write_to_file(audio_file)
+        utils.play_audio_file(audio_file, ctx.sound_driver)
+
+    threading.Thread(target=synthesize_ip_address).start()
+
+
 def main(ctx, query=None):
     """
     The main Fably loop.
@@ -321,9 +341,12 @@ def main(ctx, query=None):
                 #     logging.debug("This is a short press. Stopping current story...")
 
         def button_2_held(ctx):
-            pass  # for now never shut down
-            # logging.info("This is a hold press. Shutting down.")
-            # ctx.running = False
+            # Python Program to Get IP Address
+            hostname = socket.gethostname()
+            ip_addr = socket.gethostbyname(hostname)
+            logging.info("Your Computer Name is:" + hostname)
+            logging.info("Your Computer IP Address is:" + ip_addr)
+
 
         ctx.button_2 = Button(pin=ctx.button_2_gpio_pin, hold_time=ctx.hold_time)
         ctx.button_2.when_pressed = lambda: button_2_pressed(ctx)
