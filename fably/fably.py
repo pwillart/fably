@@ -346,7 +346,7 @@ def main(ctx, query=None):
             ip_addr = socket.gethostbyname(hostname)
             logging.info("Your Computer Name is:" + hostname)
             logging.info("Your Computer IP Address is:" + ip_addr)
-
+            tell_ip_address(ctx, ip_addr)
 
         ctx.button_2 = Button(pin=ctx.button_2_gpio_pin, hold_time=ctx.hold_time)
         ctx.button_2.when_pressed = lambda: button_2_pressed(ctx)
