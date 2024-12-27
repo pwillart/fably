@@ -275,7 +275,7 @@ def record_until_silence(recognizer, is_listening, trim_first_frame=False, sampl
         recorded_frames.append(bytes(indata))
 
     with sd.RawInputStream(samplerate=sample_rate, blocksize=sample_rate // 4, dtype="int16", channels=1, callback=callback):
-        # logging.debug("Recording voice query...")
+        logging.info("Recording voice query...")
 
         # while True:
         while is_listening():
@@ -285,6 +285,8 @@ def record_until_silence(recognizer, is_listening, trim_first_frame=False, sampl
                 if result["text"]:
                     query.append(result["text"])
                     break
+
+        logging.info("Finished voice query...")
 
         final_result = json.loads(recognizer.FinalResult())
         query.append(final_result["text"])
