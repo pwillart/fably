@@ -191,25 +191,25 @@ async def speaker(ctx, reading_queue):
     """
     Processes the queue of audio files and plays them.
     """
-    # logging.info("*** speaker ***")
-    logging.debug("Start LEDs rotate")
-    ctx.leds.stop()
-    # ctx.leds.start("twinkle")
-    ctx.leds.start("rotate")
-    loop = asyncio.get_running_loop()
-    with concurrent.futures.ThreadPoolExecutor() as pool:
-        while ctx.talking:
-            audio_file = await reading_queue.get()
-            if audio_file is None:
-                logging.debug("Stop LEDs")
-                ctx.leds.stop()
-                logging.debug("Done playing the story.")
-                break
-
-            def speak():
-                utils.play_audio_file(audio_file, ctx.sound_driver)
-
-            await loop.run_in_executor(pool, speak)
+    # # logging.info("*** speaker ***")
+    # logging.debug("Start LEDs rotate")
+    # ctx.leds.stop()
+    # # ctx.leds.start("twinkle")
+    # ctx.leds.start("rotate")
+    # loop = asyncio.get_running_loop()
+    # with concurrent.futures.ThreadPoolExecutor() as pool:
+    #     while ctx.talking:
+    #         audio_file = await reading_queue.get()
+    #         if audio_file is None:
+    #             logging.debug("Stop LEDs")
+    #             ctx.leds.stop()
+    #             logging.debug("Done playing the story.")
+    #             break
+    #
+    #         def speak():
+    #             utils.play_audio_file(audio_file, ctx.sound_driver)
+    #
+    #         await loop.run_in_executor(pool, speak)
 
 
 async def run_story_loop(ctx, query=None, terminate=False):
@@ -305,11 +305,13 @@ def main(ctx, query=None):
 
             if pressed_for < ctx.button.hold_time:
                 if not ctx.talking:
-                    logging.info("button click")
+                    logging.info("button click - tell story")
                     # logging.info("This is a short press. Telling a story...")
                     tell_story(ctx, terminate=False)
                     # logging.debug("Forked the storytelling thread")
-                # else:
+                else:
+                    logging.info("button click - stop listening")
+                    ctx.listening = False
                     # logging.debug("This is a short press, but we are already telling a story.")
 
         def button_held(ctx):

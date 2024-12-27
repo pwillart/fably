@@ -254,6 +254,7 @@ def record_until_silence_test(sample_rate=QUERY_SAMPLE_RATE):
 
     return np.concatenate(npframes, axis=0), sample_rate, "n/a"
 
+
 def record_until_silence(recognizer, is_listening, trim_first_frame=False, sample_rate=QUERY_SAMPLE_RATE):
     """
     Records audio until silence is detected.
@@ -294,6 +295,7 @@ def record_until_silence(recognizer, is_listening, trim_first_frame=False, sampl
         npframes = npframes.pop(0)
 
     return np.concatenate(npframes, axis=0), sample_rate, " ".join(query)
+
 
 def transcribe(stt_client, audio_data, stt_model="whisper-1", language="en", sample_rate=QUERY_SAMPLE_RATE, audio_path=None):
     """
