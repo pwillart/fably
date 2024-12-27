@@ -267,7 +267,7 @@ def tell_ip_address(ctx, ip_addr):
         response.write_to_file(audio_file)
         utils.play_audio_file(audio_file, ctx.sound_driver)
 
-    threading.Thread(target=synthesize_ip_address).start()
+    asyncio.run(synthesize_ip_address())
 
 
 def main(ctx, query=None):
