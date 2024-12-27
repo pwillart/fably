@@ -345,7 +345,7 @@ def main(ctx, query=None):
         def button_2_held(ctx):
             # Python Program to Get IP Address
             hostname = socket.gethostname()
-            ip_addr = socket.gethostbyname(hostname)
+            ip_addr = socket.gethostbyname(hostname+'.')
             logging.info("Your Computer Name is:" + hostname)
             logging.info("Your Computer IP Address is:" + ip_addr)
             tell_ip_address(ctx, ip_addr)
