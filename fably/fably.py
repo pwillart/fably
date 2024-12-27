@@ -262,7 +262,7 @@ def tell_ip_address(ctx, ip_addr):
             voice=ctx.tts_voice,
             response_format=ctx.tts_format,
         )
-        audio_file = ctx.stories_path / "ip_address.{ctx.tts_format}"
+        audio_file = ctx.stories_path / f"ip_address.{ctx.tts_format}"
         logging.info(f"ip address audio file: {audio_file}")
         response.write_to_file(audio_file)
         utils.play_audio_file(audio_file, ctx.sound_driver)
