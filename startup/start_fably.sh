@@ -16,7 +16,8 @@ echo "Run Fably continuously..."
 cd fably
 
 # Run Fably in a constant loop (using the default APIs)
-fably --loop # --debug
+fably --loop
+#fably --loop --debug
 
 # Use this command to talk to APIs running on your own machine.
 # See https://github.com/stefanom/fably/blob/main/servers/README.md for more information on running APIs locally.

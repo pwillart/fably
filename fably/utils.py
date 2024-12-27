@@ -270,7 +270,7 @@ def record_until_silence(recognizer, is_listening, trim_first_frame=False, sampl
 
     def callback(indata, frames, _time, _status):
         """This function is called for each audio block from the microphone"""
-        # logging.debug("Recorded audio frame with %i samples", frames)
+        logging.info("Recorded audio frame with %i samples", frames)
         recognition_queue.put(bytes(indata))
         recorded_frames.append(bytes(indata))
 
@@ -282,6 +282,7 @@ def record_until_silence(recognizer, is_listening, trim_first_frame=False, sampl
             data = recognition_queue.get()
             if recognizer.AcceptWaveform(data):
                 result = json.loads(recognizer.Result())
+                logging.info(f"Result: {result}")
                 if result["text"]:
                     query.append(result["text"])
                     break
