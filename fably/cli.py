@@ -277,6 +277,11 @@ def cli(
 
     ctx.running = True
     ctx.talking = False
+    ctx.listening = False
+
+    def is_listing():
+        return ctx.listening
+    ctx.is_listening = is_listing
 
     ctx.api_key = os.getenv("OPENAI_API_KEY")
     if ctx.api_key is None:

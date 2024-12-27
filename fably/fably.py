@@ -6,6 +6,7 @@ import asyncio
 import concurrent.futures
 import logging
 import shutil
+import socket
 import time
 import threading
 
@@ -93,9 +94,10 @@ async def writer(ctx, story_queue, query=None):
         voice_query_file = None
     else:
         utils.play_sound("what_story", audio_driver=ctx.sound_driver, language=ctx.language)
+        ctx.listening = True
 
         # voice_query, query_sample_rate, query_local = utils.record_until_silence()
-        voice_query, query_sample_rate, query_local = utils.record_until_silence(ctx.recognizer, ctx.trim_first_frame)
+        voice_query, query_sample_rate, query_local = utils.record_until_silence(ctx.recognizer, ctx.is_listening, ctx.trim_first_frame)
 
         # logging.info("Voice query: ", voice_query)
         # logging.info("Query sample rate %s: ", query_sample_rate)
@@ -247,6 +249,27 @@ def tell_story(ctx, query=None, terminate=False):
     threading.Thread(target=tell_story_wrapper).start()
 
 
+def tell_ip_address(ctx, ip_addr):
+    """
+    Forks off a thread to tell the toy's ip address.
+    """
+
+    async def synthesize_ip_address():
+        logging.info("trigger synthesize ip address")
+        response = await ctx.tts_client.audio.speech.create(
+            input=ip_addr,
+            model=ctx.tts_model,
+            voice=ctx.tts_voice,
+            response_format=ctx.tts_format,
+        )
+        audio_file = ctx.stories_path / f"ip_address.{ctx.tts_format}"
+        logging.info(f"ip address audio file: {audio_file}")
+        response.write_to_file(audio_file)
+        utils.play_audio_file(audio_file, ctx.sound_driver)
+
+    asyncio.run(synthesize_ip_address())
+
+
 def main(ctx, query=None):
     """
     The main Fably loop.
@@ -282,10 +305,13 @@ def main(ctx, query=None):
 
             if pressed_for < ctx.button.hold_time:
                 if not ctx.talking:
+                    logging.info("button click - tell story")
                     # logging.info("This is a short press. Telling a story...")
                     tell_story(ctx, terminate=False)
                     # logging.debug("Forked the storytelling thread")
-                # else:
+                else:
+                    logging.info("button click - stop listening")
+                    ctx.listening = False
                     # logging.debug("This is a short press, but we are already telling a story.")
 
         def button_held(ctx):
@@ -308,6 +334,8 @@ def main(ctx, query=None):
             # logging.debug("Button 2 released after %f seconds", pressed_for)
 
             if pressed_for < ctx.button.hold_time:
+                if ctx.listening:
+                    ctx.listening = False
                 if not ctx.talking:
                     # logging.info("This is a short press. Changing language...")
                     ctx.language = 'es' if ctx.language == 'en' else 'en'
@@ -317,9 +345,12 @@ def main(ctx, query=None):
                 #     logging.debug("This is a short press. Stopping current story...")
 
         def button_2_held(ctx):
-            pass  # for now never shut down
-            # logging.info("This is a hold press. Shutting down.")
-            # ctx.running = False
+            # Python Program to Get IP Address
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            ip_addr = s.getsockname()[0]
+            logging.info("Your Computer's IP Address is:" + ip_addr)
+            tell_ip_address(ctx, ip_addr)
 
         ctx.button_2 = Button(pin=ctx.button_2_gpio_pin, hold_time=ctx.hold_time)
         ctx.button_2.when_pressed = lambda: button_2_pressed(ctx)
@@ -337,7 +368,7 @@ def main(ctx, query=None):
         # We will record one from the user in that case.
         tell_story(ctx, query=query, terminate=True)
 
-    # Keep the main thread from existing until we're done.
+    # Keep the main thread from exiting until we're done.
     while ctx.running:
         time.sleep(1.0)
 

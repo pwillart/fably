@@ -254,7 +254,8 @@ def record_until_silence_test(sample_rate=QUERY_SAMPLE_RATE):
 
     return np.concatenate(npframes, axis=0), sample_rate, "n/a"
 
-def record_until_silence(recognizer, trim_first_frame=False, sample_rate=QUERY_SAMPLE_RATE):
+
+def record_until_silence(recognizer, is_listening, trim_first_frame=False, sample_rate=QUERY_SAMPLE_RATE):
     """
     Records audio until silence is detected.
     This uses a tiny speech recognizer (vosk) to detect silence.
@@ -269,20 +270,24 @@ def record_until_silence(recognizer, trim_first_frame=False, sample_rate=QUERY_S
 
     def callback(indata, frames, _time, _status):
         """This function is called for each audio block from the microphone"""
-        # logging.debug("Recorded audio frame with %i samples", frames)
+        logging.info("Recorded audio frame with %i samples", frames)
         recognition_queue.put(bytes(indata))
         recorded_frames.append(bytes(indata))
 
     with sd.RawInputStream(samplerate=sample_rate, blocksize=sample_rate // 4, dtype="int16", channels=1, callback=callback):
-        # logging.debug("Recording voice query...")
+        logging.info("Recording voice query...")
 
-        while True:
+        # while True:
+        while is_listening():
             data = recognition_queue.get()
             if recognizer.AcceptWaveform(data):
                 result = json.loads(recognizer.Result())
+                logging.info(f"Result: {result}")
                 if result["text"]:
                     query.append(result["text"])
                     break
+
+        logging.info("Finished voice query...")
 
         final_result = json.loads(recognizer.FinalResult())
         query.append(final_result["text"])
@@ -293,6 +298,7 @@ def record_until_silence(recognizer, trim_first_frame=False, sample_rate=QUERY_S
         npframes = npframes.pop(0)
 
     return np.concatenate(npframes, axis=0), sample_rate, " ".join(query)
+
 
 def transcribe(stt_client, audio_data, stt_model="whisper-1", language="en", sample_rate=QUERY_SAMPLE_RATE, audio_path=None):
     """
