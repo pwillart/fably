@@ -346,12 +346,8 @@ def main(ctx, query=None):
             # Python Program to Get IP Address
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             s.connect(("8.8.8.8", 80))
-            logging.info("test 2:" + s.getsockname()[0])
-
-            hostname = socket.gethostname()
-            logging.info("Your Computer Name is:" + hostname)
-            ip_addr = socket.gethostbyname(hostname)
-            logging.info("Your Computer IP Address is:" + ip_addr)
+            ip_addr = s.getsockname()[0]
+            logging.info("Your Computer's IP Address is:" + ip_addr)
             tell_ip_address(ctx, ip_addr)
 
         ctx.button_2 = Button(pin=ctx.button_2_gpio_pin, hold_time=ctx.hold_time)
