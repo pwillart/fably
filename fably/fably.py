@@ -368,7 +368,7 @@ def main(ctx, query=None):
         # We will record one from the user in that case.
         tell_story(ctx, query=query, terminate=True)
 
-    # Keep the main thread from existing until we're done.
+    # Keep the main thread from exiting until we're done.
     while ctx.running:
         time.sleep(1.0)
 
