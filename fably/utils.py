@@ -3,6 +3,7 @@ Shared utility functions.
 """
 
 import os
+import random
 import re
 import logging
 import json
@@ -26,6 +27,9 @@ MAX_FILE_LENGTH = 255
 SOUNDS_PATH = "sounds"
 QUERY_SAMPLE_RATE = 16000
 
+WORD_LIST_SUBJECTS = ["Luca", "boy", "Beemo", "firetruck", "excavator", "race car", "cookies", "dog", "fish", "cat", "duck"]
+WORD_LIST_VERBS = ["running", "playing", "building", "fixing", "drawing"]
+WORD_LIST_LOCATIONS = ["forest", "market", "school", "playground"]
 
 def rotate_rgb_color(rgb_value, step_size=1):
     """
@@ -331,4 +335,17 @@ def transcribe(stt_client, audio_data, stt_model="whisper-1", language="en", sam
         response = stt_client.audio.transcriptions.create(model=stt_model, language=language, file=query)
 
     logging.info('Transcribed text is: %s', response.text)
+
+    # We didn't record a query. Probably input was given before the microphone started recording
+    # Generate a random query from a list of prefixed words
+    if response.text == "":
+        # pick two random subjects
+        subjects = random.sample(WORD_LIST_SUBJECTS, 2)
+        # pick one random verb
+        verb = random.sample(WORD_LIST_VERBS, 1)
+        # pick a location
+        location = random.sample(WORD_LIST_LOCATIONS, 1)
+        response.text = subjects[0] + " " + subjects[1] + " " + verb[0] + " " + location[0]
+        logging.info('Random query is: %s', response.text)
+
     return response.text, audio_file
