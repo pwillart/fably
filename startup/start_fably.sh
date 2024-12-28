@@ -9,7 +9,7 @@ echo "Microphone is available"
 echo "Activate Python virtual environment..."
 # shellcheck disable=SC2164
 cd /home/pwillart
-source .venv/bin/activate
+source /home/pwillart/.venv/bin/activate
 
 echo "Run Fably continuously..."
 # shellcheck disable=SC2164
