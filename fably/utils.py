@@ -240,23 +240,26 @@ def record_until_silence_test(sample_rate=QUERY_SAMPLE_RATE):
         recorded_frames.append(bytes(indata))
         sampling_queue.put(bytes(indata))
 
-    with sd.RawInputStream(samplerate=sample_rate, blocksize=sample_rate // 4, dtype="int16", channels=1, callback=callback):
-        logging.info("Recording voice query...")
+    try:
+        with sd.RawInputStream(samplerate=sample_rate, blocksize=sample_rate // 4, dtype="int16", channels=1, callback=callback):
+            logging.info("Recording voice query...")
 
-        while True:
-            sd.sleep(100)
-            data = sampling_queue.get()
-            recording_length = time.time() - start
-            # print(f"recording_length: {recording_length}")
-            # print(f"recorded {recording_length}")
-            # print(f"data {data}")
-            # rms = np.sqrt(np.mean(data**2))
-            # print(f"RMS: {rms:.4f}")
+            while True:
+                sd.sleep(100)
+                data = sampling_queue.get()
+                recording_length = time.time() - start
+                # print(f"recording_length: {recording_length}")
+                # print(f"recorded {recording_length}")
+                # print(f"data {data}")
+                # rms = np.sqrt(np.mean(data**2))
+                # print(f"RMS: {rms:.4f}")
 
-            # if (recording_length > 3 and rms <= 0.01) or recording_length > 10:
-            if recording_length > 5:
-                sd.sleep(int(2 / sample_rate * 1000))
-                break
+                # if (recording_length > 3 and rms <= 0.01) or recording_length > 10:
+                if recording_length > 5:
+                    sd.sleep(int(2 / sample_rate * 1000))
+                    break
+    except sd.PortAudioError as e:
+        logging.info(f"Error: {e}")
 
     # print(f"Final recording_length: {recording_length}")
 
