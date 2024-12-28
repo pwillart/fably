@@ -216,6 +216,7 @@ async def run_story_loop(ctx, query=None, terminate=False):
     """
     The main loop for running the story.
     """
+    ctx.logging.info("Starting story loop")
     ctx.talking = True
     logging.debug("Start LEDs spin")
     ctx.leds.stop()
@@ -255,7 +256,7 @@ def tell_ip_address(ctx, ip_addr):
     """
 
     async def synthesize_ip_address():
-        logging.info("trigger synthesize ip address")
+        ctx.logging.info("trigger synthesize ip address")
         response = await ctx.tts_client.audio.speech.create(
             input=ip_addr,
             model=ctx.tts_model,
@@ -263,7 +264,7 @@ def tell_ip_address(ctx, ip_addr):
             response_format=ctx.tts_format,
         )
         audio_file = ctx.stories_path / f"ip_address.{ctx.tts_format}"
-        logging.info(f"ip address audio file: {audio_file}")
+        ctx.logging.info(f"ip address audio file: {audio_file}")
         response.write_to_file(audio_file)
         utils.play_audio_file(audio_file, ctx.sound_driver)
 

@@ -113,7 +113,7 @@ def get_speech_recognizer(models_path, model_name):
                     f.write(chunk)
 
         # Unzip the model
-        print("Unzipping the model...")
+        logging.info("Unzipping the model...")
         with zipfile.ZipFile(zip_path, "r") as zip_ref:
             zip_ref.extractall(model_dir.parent)
 
@@ -133,7 +133,7 @@ def write_audio_data_to_file(audio_data, audio_file, sample_rate):
     Write audio data to a file with the given sample rate.
     """
     # logging.info("Soundfile library: %s", sf.__file__)
-    # logging.info(f"audio_file: {audio_file}")
+    logging.info(f"audio_file: {audio_file}")
     # logging.info("audio_data size: %i; sample_rate: %i", len(audio_data), sample_rate)
     # logging.info("audio_data %s", audio_data)
     sf.write(audio_file, audio_data, sample_rate)
@@ -192,8 +192,11 @@ def write_to_file(path, text):
     """
     Write the given text to a file at the given path.
     """
-    with open(path, "w", encoding="utf8") as f:
-        f.write(text)
+    try:
+        with open(path, "w", encoding="utf8") as f:
+            f.write(text)
+    except Exception as e:
+        logging.info(f"write_to_file exception: {e}")
 
 
 def read_from_file(path):
