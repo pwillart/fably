@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sudo chmod -R a+rw /dev/snd
+
 echo "Wait for a microphone to be available"
 while ! arecord -l 2>&1 | grep -q 'card [0-9]'; do
     sleep 1

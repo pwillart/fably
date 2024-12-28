@@ -227,6 +227,8 @@ def record_until_silence_test(sample_rate=QUERY_SAMPLE_RATE):
     recorded_frames = []
     sampling_queue = queue.Queue()
 
+    logging.info("sound devices (input): %s", sd.query_devices(kind="input"))
+
     def callback(indata, frames, _time, _status):
         """This function is called for each audio block from the microphone"""
         # logging.debug("Recorded audio frame with %i samples", frames)
