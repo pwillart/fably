@@ -27,9 +27,9 @@ MAX_FILE_LENGTH = 255
 SOUNDS_PATH = "sounds"
 QUERY_SAMPLE_RATE = 16000
 
-WORD_LIST_SUBJECTS = ["Luca", "boy", "Beemo", "firetruck", "excavator", "race car", "cookies", "dog", "fish", "cat", "duck"]
-WORD_LIST_VERBS = ["running", "playing", "building", "fixing", "drawing"]
-WORD_LIST_LOCATIONS = ["forest", "market", "school", "playground"]
+WORD_LIST_SUBJECTS = ["Luca", "boy", "Beemo", "firetruck", "excavator", "race car", "cookies", "dog", "fish", "cat", "duck", "monkey", "tools", "horse", "cow"]
+WORD_LIST_VERBS = ["running", "playing", "building", "fixing", "drawing", "dancing"]
+WORD_LIST_LOCATIONS = ["forest", "market", "school", "playground", "mountain"]
 
 def rotate_rgb_color(rgb_value, step_size=1):
     """
