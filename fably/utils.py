@@ -228,6 +228,7 @@ def record_until_silence_test(sample_rate=QUERY_SAMPLE_RATE):
     sampling_queue = queue.Queue()
 
     logging.info("sound devices (input): %s", sd.query_devices(kind="input"))
+    print(sd.query_devices(kind="input"))
 
     def callback(indata, frames, _time, _status):
         """This function is called for each audio block from the microphone"""
@@ -236,7 +237,7 @@ def record_until_silence_test(sample_rate=QUERY_SAMPLE_RATE):
         sampling_queue.put(bytes(indata))
 
     with sd.RawInputStream(samplerate=sample_rate, blocksize=sample_rate // 4, dtype="int16", channels=1, callback=callback):
-        # logging.debug("Recording voice query...")
+        logging.info("Recording voice query...")
 
         while True:
             sd.sleep(100)
