@@ -277,8 +277,7 @@ def main(ctx, query=None):
     The main Fably loop.
     """
     # Force the volume to about 65%
-    Popen(['amixer', 'set', 'Master', '65%'])
-
+    Popen("/usr/bin/amixer set Master 65%")
 
     ctx.stt_client = openai.Client(base_url=ctx.stt_url, api_key=ctx.api_key, )
     ctx.llm_client = openai.AsyncClient(base_url=ctx.llm_url, api_key=ctx.api_key)
