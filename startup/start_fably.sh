@@ -8,6 +8,8 @@ while ! arecord -l 2>&1 | grep -q 'card [0-9]'; do
 done
 echo "Microphone is available"
 
+amixer set Master 65%
+
 echo "Activate Python virtual environment..."
 # shellcheck disable=SC2164
 cd /home/pwillart
