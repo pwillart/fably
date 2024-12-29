@@ -7,6 +7,7 @@ import concurrent.futures
 import logging
 import shutil
 import socket
+import subprocess
 import time
 import threading
 
@@ -216,6 +217,7 @@ async def run_story_loop(ctx, query=None, terminate=False):
     """
     The main loop for running the story.
     """
+    ctx.logging.info("Starting story loop")
     ctx.talking = True
     logging.debug("Start LEDs spin")
     ctx.leds.stop()
@@ -255,7 +257,7 @@ def tell_ip_address(ctx, ip_addr):
     """
 
     async def synthesize_ip_address():
-        logging.info("trigger synthesize ip address")
+        ctx.logging.info("trigger synthesize ip address")
         response = await ctx.tts_client.audio.speech.create(
             input=ip_addr,
             model=ctx.tts_model,
@@ -263,7 +265,7 @@ def tell_ip_address(ctx, ip_addr):
             response_format=ctx.tts_format,
         )
         audio_file = ctx.stories_path / f"ip_address.{ctx.tts_format}"
-        logging.info(f"ip address audio file: {audio_file}")
+        ctx.logging.info(f"ip address audio file: {audio_file}")
         response.write_to_file(audio_file)
         utils.play_audio_file(audio_file, ctx.sound_driver)
 
@@ -274,6 +276,10 @@ def main(ctx, query=None):
     """
     The main Fably loop.
     """
+    # Force the volume to about 65%
+    # result = subprocess.run(["/usr/bin/amixer", "set", "Master", "65%"], capture_output=True, text=True)
+    result = subprocess.run(["/usr/bin/amixer", "-D", "pulse", "sset", "Master", "65%"], capture_output=True, text=True)
+    logging.info("amixer: %s %s.", result.returncode, result.stderr)
 
     ctx.stt_client = openai.Client(base_url=ctx.stt_url, api_key=ctx.api_key, )
     ctx.llm_client = openai.AsyncClient(base_url=ctx.llm_url, api_key=ctx.api_key)

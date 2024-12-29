@@ -3,6 +3,7 @@ Shared utility functions.
 """
 
 import os
+import random
 import re
 import logging
 import json
@@ -26,6 +27,9 @@ MAX_FILE_LENGTH = 255
 SOUNDS_PATH = "sounds"
 QUERY_SAMPLE_RATE = 16000
 
+WORD_LIST_SUBJECTS = ["Luca", "boy", "Beemo", "firetruck", "excavator", "race car", "cookies", "dog", "fish", "cat", "duck", "monkey", "tools", "horse", "cow"]
+WORD_LIST_VERBS = ["running", "playing", "building", "fixing", "drawing", "dancing"]
+WORD_LIST_LOCATIONS = ["forest", "market", "school", "playground", "mountain"]
 
 def rotate_rgb_color(rgb_value, step_size=1):
     """
@@ -113,7 +117,7 @@ def get_speech_recognizer(models_path, model_name):
                     f.write(chunk)
 
         # Unzip the model
-        print("Unzipping the model...")
+        logging.info("Unzipping the model...")
         with zipfile.ZipFile(zip_path, "r") as zip_ref:
             zip_ref.extractall(model_dir.parent)
 
@@ -133,7 +137,7 @@ def write_audio_data_to_file(audio_data, audio_file, sample_rate):
     Write audio data to a file with the given sample rate.
     """
     # logging.info("Soundfile library: %s", sf.__file__)
-    # logging.info(f"audio_file: {audio_file}")
+    logging.info(f"audio_file: {audio_file}")
     # logging.info("audio_data size: %i; sample_rate: %i", len(audio_data), sample_rate)
     # logging.info("audio_data %s", audio_data)
     sf.write(audio_file, audio_data, sample_rate)
@@ -192,8 +196,11 @@ def write_to_file(path, text):
     """
     Write the given text to a file at the given path.
     """
-    with open(path, "w", encoding="utf8") as f:
-        f.write(text)
+    try:
+        with open(path, "w", encoding="utf8") as f:
+            f.write(text)
+    except Exception as e:
+        logging.info(f"write_to_file exception: {e}")
 
 
 def read_from_file(path):
@@ -224,29 +231,35 @@ def record_until_silence_test(sample_rate=QUERY_SAMPLE_RATE):
     recorded_frames = []
     sampling_queue = queue.Queue()
 
+    logging.info("sound devices (input): %s", sd.query_devices(kind="input"))
+    print(sd.query_devices(kind="input"))
+
     def callback(indata, frames, _time, _status):
         """This function is called for each audio block from the microphone"""
         # logging.debug("Recorded audio frame with %i samples", frames)
         recorded_frames.append(bytes(indata))
         sampling_queue.put(bytes(indata))
 
-    with sd.RawInputStream(samplerate=sample_rate, blocksize=sample_rate // 4, dtype="int16", channels=1, callback=callback):
-        # logging.debug("Recording voice query...")
+    try:
+        with sd.RawInputStream(samplerate=sample_rate, blocksize=sample_rate // 4, dtype="int16", channels=1, callback=callback):
+            logging.info("Recording voice query...")
 
-        while True:
-            sd.sleep(100)
-            data = sampling_queue.get()
-            recording_length = time.time() - start
-            # print(f"recording_length: {recording_length}")
-            # print(f"recorded {recording_length}")
-            # print(f"data {data}")
-            # rms = np.sqrt(np.mean(data**2))
-            # print(f"RMS: {rms:.4f}")
+            while True:
+                sd.sleep(100)
+                data = sampling_queue.get()
+                recording_length = time.time() - start
+                # print(f"recording_length: {recording_length}")
+                # print(f"recorded {recording_length}")
+                # print(f"data {data}")
+                # rms = np.sqrt(np.mean(data**2))
+                # print(f"RMS: {rms:.4f}")
 
-            # if (recording_length > 3 and rms <= 0.01) or recording_length > 10:
-            if recording_length > 5:
-                sd.sleep(int(2 / sample_rate * 1000))
-                break
+                # if (recording_length > 3 and rms <= 0.01) or recording_length > 10:
+                if recording_length > 5:
+                    sd.sleep(int(2 / sample_rate * 1000))
+                    break
+    except sd.PortAudioError as e:
+        logging.info(f"Error: {e}")
 
     # print(f"Final recording_length: {recording_length}")
 
@@ -325,4 +338,17 @@ def transcribe(stt_client, audio_data, stt_model="whisper-1", language="en", sam
         response = stt_client.audio.transcriptions.create(model=stt_model, language=language, file=query)
 
     logging.info('Transcribed text is: %s', response.text)
+
+    # We didn't record a query. Probably input was given before the microphone started recording
+    # Generate a random query from a list of prefixed words
+    if response.text == "":
+        # pick two random subjects
+        subjects = random.sample(WORD_LIST_SUBJECTS, 2)
+        # pick one random verb
+        verb = random.sample(WORD_LIST_VERBS, 1)
+        # pick a location
+        location = random.sample(WORD_LIST_LOCATIONS, 1)
+        response.text = subjects[0] + " " + subjects[1] + " " + verb[0] + " " + location[0]
+        logging.info('Random query is: %s', response.text)
+
     return response.text, audio_file

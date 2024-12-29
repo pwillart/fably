@@ -237,10 +237,12 @@ def cli(
     hold_time,
     loop,
 ):
+    log_file_path = "fably.log"
     if debug:
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(filename=log_file_path, level=logging.DEBUG, format='%(asctime)s - %(message)s')
     else:
-        logging.basicConfig(level=logging.INFO)
+        logging.basicConfig(filename=log_file_path, level=logging.INFO,format='%(asctime)s - %(message)s')
+    ctx.logging = logging
 
     ctx.sound_model = sound_model
     ctx.sound_model_es = sound_model_es
