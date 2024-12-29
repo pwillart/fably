@@ -282,7 +282,7 @@ def main(ctx, query=None):
     logging.info("amixer - %s: %s.", result.returncode, result.stderr)
 
     result2 = subprocess.run(["/usr/bin/amixer", "-c", "3", "-D", "pulse", "sset", "Master", "65%"], capture_output=True, text=True)
-    logging.info("amixer - %s: %s.", result2.returncode, result2stderr)
+    logging.info("amixer - %s: %s.", result2.returncode, result2.stderr)
 
     ctx.stt_client = openai.Client(base_url=ctx.stt_url, api_key=ctx.api_key, )
     ctx.llm_client = openai.AsyncClient(base_url=ctx.llm_url, api_key=ctx.api_key)
