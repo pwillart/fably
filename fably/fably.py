@@ -277,7 +277,7 @@ def main(ctx, query=None):
     The main Fably loop.
     """
     # Force the volume to about 65%
-    result0 = subprocess.run("smixer controls", shell=True, capture_output=True, text=True)
+    result0 = subprocess.run("amixer controls", shell=True, capture_output=True, text=True)
     logging.info("0 amixer - %s: %s.", result0.returncode, result0.stderr)
 
     result = subprocess.run(["/usr/bin/amixer", "-c", "3", "-D", "pulse", "sset", "Master", "65%"], capture_output=True, text=True)
