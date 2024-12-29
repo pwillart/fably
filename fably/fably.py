@@ -277,7 +277,8 @@ def main(ctx, query=None):
     The main Fably loop.
     """
     # Force the volume to about 65%
-    result = subprocess.run(["/usr/bin/amixer", "set", "Master", "65%"], capture_output=True, text=True)
+    # result = subprocess.run(["/usr/bin/amixer", "set", "Master", "65%"], capture_output=True, text=True)
+    result = subprocess.run(["/usr/bin/amixer", "-D", "pulse", "sset", "Master", "65%"], capture_output=True, text=True)
     logging.info("amixer: %s %s.", result.returncode, result.stderr)
 
     ctx.stt_client = openai.Client(base_url=ctx.stt_url, api_key=ctx.api_key, )
