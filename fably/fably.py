@@ -7,6 +7,7 @@ import concurrent.futures
 import logging
 import shutil
 import socket
+import subprocess
 import time
 import threading
 
@@ -18,7 +19,6 @@ except (ImportError, NotImplementedError):
     Button = None
 
 from fably import utils
-from subprocess import Popen
 
 
 def generate_story(ctx, query, prompt):
@@ -277,7 +277,8 @@ def main(ctx, query=None):
     The main Fably loop.
     """
     # Force the volume to about 65%
-    Popen("/usr/bin/amixer set Master 65%")
+    result = subprocess.run(["/usr/bin/amixer", "set", "Master", "65%"], capture_output=True, text=True)
+    logging.info("amixer: %s %s.", result.returncode, result.stderr)
 
     ctx.stt_client = openai.Client(base_url=ctx.stt_url, api_key=ctx.api_key, )
     ctx.llm_client = openai.AsyncClient(base_url=ctx.llm_url, api_key=ctx.api_key)
